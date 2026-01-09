@@ -10,27 +10,63 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    protected $table = 'users';
+    // 🔹 Nama tabel
+    protected $table = 'pengguna';
 
-    protected $primaryKey = 'id_user'; // 🔴 WAJIB
+    // 🔹 Primary key
+    protected $primaryKey = 'id_pengguna';
 
     public $incrementing = true;
 
     protected $keyType = 'int';
 
+    // 🔹 Kolom yang boleh diisi
     protected $fillable = [
         'nama',
         'email',
         'password',
-        'role',
+        'no_hp',
+        'peran',
     ];
 
+    // 🔹 Kolom tersembunyi
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
+    // 🔹 Casting
     protected $casts = [
-        'password' => 'hashed', // ✅ cukup ini saja
+        'password' => 'hashed',
     ];
+
+    /* =======================
+     * RELASI
+     * =======================
+     */
+
+    public function pemesanan()
+    {
+        return $this->hasMany(Pemesanan::class, 'id_pengguna', 'id_pengguna');
+    }
+
+    /* =======================
+     * HELPER ROLE
+     * =======================
+     */
+
+    public function isAdmin()
+    {
+        return $this->peran === 'admin';
+    }
+
+    public function isOwner()
+    {
+        return $this->peran === 'owner';
+    }
+
+    public function isPelanggan()
+    {
+        return $this->peran === 'pelanggan';
+    }
 }

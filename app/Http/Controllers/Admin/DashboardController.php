@@ -3,16 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    /**
-     * Menampilkan dashboard admin
-     */
     public function index()
     {
-        return view('admin.dashboard', [
+        // Untuk sementara tampilkan view dashboard admin.
+        // Nanti bisa ditambahkan statistik (total user, pemesanan, omzet)
+        return view('admin.dashboard.index', [
             'title' => 'Dashboard Admin'
         ]);
     }

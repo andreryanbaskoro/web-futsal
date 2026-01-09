@@ -8,6 +8,8 @@
 
     <title>{{ $title ?? 'Admin Dashboard' }} | Futsal</title>
 
+
+
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -20,6 +22,9 @@
     <!-- Theme Store -->
     <script>
         document.addEventListener('alpine:init', () => {
+
+
+
             Alpine.store('theme', {
                 init() {
                     const savedTheme = localStorage.getItem('theme');
@@ -75,6 +80,36 @@
                     }
                 }
             });
+
+            Alpine.store('modal', {
+                open: false,
+                type: null,
+                deleteForm: null,
+                isLoading: false, // <-- loader state
+
+                show(type) {
+                    this.type = type;
+                    this.open = true;
+                    const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+                    if (scrollBarWidth > 0) document.body.style.paddingRight = scrollBarWidth + 'px';
+                    document.body.classList.add('overflow-hidden');
+                },
+
+                hide() {
+                    this.open = false;
+                    this.type = null;
+                    this.deleteForm = null;
+                    this.isLoading = false; // reset loader saat modal tutup
+                    document.body.classList.remove('overflow-hidden');
+                    document.body.style.paddingRight = '';
+                },
+
+                submitWithLoader(form) {
+                    this.isLoading = true;
+                    form.submit();
+                }
+            });
+
         });
     </script>
 
@@ -97,7 +132,7 @@
 </head>
 
 <body
-    x-data="{ 'loaded': true}"
+    x-data="{ 'loaded': true, isModalOpen: false }"
     x-init="$store.sidebar.isExpanded = window.innerWidth >= 1280;
     const checkMobile = () => {
         if (window.innerWidth < 1280) {
@@ -115,8 +150,8 @@
     {{-- preloader end --}}
 
     <div class="min-h-screen xl:flex">
-        @include('partials.backdrop')
-        @include('partials.sidebar')
+        @include('partials.admin.backdrop')
+        @include('partials.admin.sidebar')
 
         <div class="flex-1 transition-all duration-300 ease-in-out"
             :class="{
@@ -125,16 +160,17 @@
                 'ml-0': $store.sidebar.isMobileOpen
             }">
             <!-- app header start -->
-            @include('partials.app-header')
+            @include('partials.admin.app-header')
             <!-- app header end -->
-            <div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
+            <div class="px-4 mx-auto md:p-6">
                 @yield('content')
             </div>
         </div>
 
     </div>
-
+    @stack('modals')
 </body>
+
 
 @stack('scripts')
 

@@ -6,16 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? 'Admin Dashboard' }} | Futsal</title>
+    <title>{{ $title ?? 'Dashboard' }} | TailAdmin - Laravel Tailwind CSS Admin Dashboard Template</title>
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <!-- Alpine.js -->
     {{-- <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script> --}}
-
-    <!-- Font Awesome -->
-    <script src="https://kit.fontawesome.com/8ba56f53d6.js" crossorigin="anonymous"></script>
 
     <!-- Theme Store -->
     <script>
@@ -116,7 +113,7 @@
 
     <div class="min-h-screen xl:flex">
         @include('partials.backdrop')
-        @include('partials.admin.sidebar')
+        @include('partials.sidebar')
 
         <div class="flex-1 transition-all duration-300 ease-in-out"
             :class="{

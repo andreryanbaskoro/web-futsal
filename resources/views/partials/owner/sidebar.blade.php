@@ -113,7 +113,7 @@ $currentPath = request()->path();
                                 <!-- Icon -->
                                 <span :class="isSubmenuOpen({{ $groupIndex }}, {{ $itemIndex }}) ?
                                                     'menu-item-icon-active' : 'menu-item-icon-inactive'">
-                                    {!! MenuHelper::renderIcon($item['icon']) !!}
+                                    {!! MenuHelper::getIconSvg($item['icon']) !!}
                                 </span>
 
                                 <!-- Text -->
@@ -178,19 +178,20 @@ $currentPath = request()->path();
                             </div>
                             @else
                             <!-- Simple Menu Item -->
-                            @php
-                            $active = MenuHelper::isActive($item);
-                            @endphp
-
-                            <a href="{{ $item['path'] ?? '#' }}"
-                                class="menu-item group {{ $active ? 'menu-item-active' : 'menu-item-inactive' }}"
-                                :class="[(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ? 'xl:justify-center' : 'justify-start']">
-
-
+                            <a href="{{ $item['path'] }}" class="menu-item group"
+                                :class="[
+                                                isActive('{{ $item['path'] }}') ? 'menu-item-active' :
+                                                'menu-item-inactive',
+                                                (!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ?
+                                                'xl:justify-center' :
+                                                'justify-start'
+                                            ]">
 
                                 <!-- Icon -->
-                                <span class="{{ $active ? 'menu-item-icon-active' : 'menu-item-icon-inactive' }}">
-                                    {!! MenuHelper::renderIcon($item['icon']) !!}
+                                <span
+                                    :class="isActive('{{ $item['path'] }}') ? 'menu-item-icon-active' :
+                                                    'menu-item-icon-inactive'">
+                                    {!! MenuHelper::getIconSvg($item['icon']) !!}
                                 </span>
 
                                 <!-- Text -->
@@ -217,7 +218,7 @@ $currentPath = request()->path();
 
         <!-- Sidebar Widget -->
         <div x-data x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen" x-transition class="mt-auto">
-            @include('partials.admin.sidebar-widget')
+            @include('partials.sidebar-widget')
         </div>
 
     </div>

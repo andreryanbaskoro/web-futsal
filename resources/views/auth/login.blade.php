@@ -1,4 +1,4 @@
-@extends('layouts.auth')
+@extends('partials.auth')
 
 @section('content')
 
@@ -8,13 +8,13 @@
 
 {{-- Error Message --}}
 @if ($errors->any())
-    <div class="mb-4 p-3 text-sm text-red-700 bg-red-100 rounded dark:bg-red-200">
-        <ul class="list-disc list-inside">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
+<div class="mb-4 p-3 text-sm text-red-700 bg-red-100 rounded dark:bg-red-200">
+    <ul class="list-disc list-inside">
+        @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
 @endif
 
 <form method="POST" action="{{ route('login') }}" class="space-y-5">
@@ -69,7 +69,7 @@
         </label>
 
         <a href="{{ route('password.request') }}"
-           class="text-blue-600 hover:underline dark:text-blue-400">
+            class="text-blue-600 hover:underline dark:text-blue-400">
             Lupa password?
         </a>
     </div>
@@ -85,7 +85,7 @@
 <div class="mt-6 text-center text-sm text-gray-600 dark:text-gray-300">
     Belum punya akun?
     <a href="{{ route('register') }}"
-       class="text-blue-600 hover:underline dark:text-blue-400 font-medium">
+        class="text-blue-600 hover:underline dark:text-blue-400 font-medium">
         Daftar sekarang
     </a>
 </div>

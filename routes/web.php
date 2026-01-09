@@ -2,51 +2,102 @@
 
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
+use App\Http\Controllers\Admin\LapanganController;
+use App\Http\Controllers\Admin\JadwalController;
+use App\Http\Controllers\Admin\PemesananController;
+use App\Http\Controllers\Admin\PembayaranController;
+use App\Http\Controllers\Admin\LaporanController;
+use App\Http\Controllers\Admin\UserController;
+
 use App\Http\Controllers\Owner\DashboardController as OwnerDashboard;
+use App\Http\Controllers\Owner\LaporanController as OwnerLaporan;
+
 use App\Http\Controllers\Pelanggan\DashboardController as PelangganDashboard;
+use App\Http\Controllers\Pelanggan\BookingController;
+use App\Http\Controllers\Pelanggan\ProfilController;
 
-use App\Http\Controllers\Auth\ForgotPasswordController;
-use App\Http\Controllers\Auth\RegisterController;
+/*
+|--------------------------------------------------------------------------
+| ADMIN
+|--------------------------------------------------------------------------
+*/
 
-// ============================
-// AUTHENTICATION ROUTES
-// ============================
+Route::prefix('admin')->name('admin.')->group(function () {
 
-Route::middleware('guest')->group(function () {
-    // Halaman Login
-    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
-    
-    // Halaman Register
-    Route::get('/register', [RegisterController::class, 'show'])->name('register');
-    Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
+    Route::get('/dashboard', [AdminDashboard::class, 'index'])
+        ->name('dashboard');
 
-    // Halaman Lupa Password
-    Route::get('/forgot-password', [ForgotPasswordController::class, 'show'])->name('password.request');
-    Route::post('/forgot-password', [ForgotPasswordController::class, 'send'])->name('password.email');
+    Route::resource('lapangan', LapanganController::class);
+    Route::resource('jadwal', JadwalController::class)->except(['show']);
+
+    Route::get('/pemesanan', [PemesananController::class, 'index'])
+        ->name('pemesanan.index');
+
+    Route::get('/pemesanan/{id}', [PemesananController::class, 'show'])
+        ->name('pemesanan.show');
+
+    Route::put('/pemesanan/{id}/verifikasi', [PemesananController::class, 'verifikasi'])
+        ->name('pemesanan.verifikasi');
+
+    Route::get('/pembayaran', [PembayaranController::class, 'index'])
+        ->name('pembayaran.index');
+
+    Route::get('/users', [UserController::class, 'index'])
+        ->name('users.index');
+
+    Route::get('/laporan', [LaporanController::class, 'index'])
+        ->name('laporan');
 });
 
-Route::middleware('auth')->group(function () {
-    // Logout
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+/*
+|--------------------------------------------------------------------------
+| OWNER
+|--------------------------------------------------------------------------
+*/
+Route::prefix('owner')->name('owner.')->group(function () {
+
+    Route::get('/dashboard', [OwnerDashboard::class, 'index'])
+        ->name('dashboard');
+
+    Route::get('/laporan/jadwal', [OwnerLaporan::class, 'jadwal'])
+        ->name('laporan.jadwal');
+
+    Route::get('/laporan/pemesanan', [OwnerLaporan::class, 'pemesanan'])
+        ->name('laporan.pemesanan');
+
+    Route::get('/laporan/transaksi', [OwnerLaporan::class, 'transaksi'])
+        ->name('laporan.transaksi');
 });
 
-// ============================
-// ROLE-BASED ROUTES
-// ============================
+/*
+|--------------------------------------------------------------------------
+| PELANGGAN
+|--------------------------------------------------------------------------
+*/
+Route::prefix('pelanggan')->name('pelanggan.')->group(function () {
 
-// Routes untuk Admin
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
-    Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('admin.dashboard');
+    Route::get('/dashboard', [PelangganDashboard::class, 'index'])
+        ->name('dashboard');
+
+    Route::get('/jadwal', [BookingController::class, 'jadwal'])
+        ->name('jadwal');
+
+    Route::post('/pesan', [BookingController::class, 'pesan'])
+        ->name('pesan');
+
+    Route::get('/pemesanan', [BookingController::class, 'pemesanan'])
+        ->name('pemesanan');
+
+    Route::get('/pembayaran/{id}', [BookingController::class, 'pembayaran'])
+        ->name('pembayaran');
+
+    Route::get('/riwayat', [BookingController::class, 'riwayat'])
+        ->name('riwayat');
+
+    Route::get('/profil', [ProfilController::class, 'index'])
+        ->name('profil.index');
+
+    Route::put('/profil', [ProfilController::class, 'update'])
+        ->name('profil.update');
 });
-
-// Routes untuk Owner
-Route::middleware(['auth', 'role:owner'])->prefix('owner')->group(function () {
-    Route::get('/dashboard', [OwnerDashboard::class, 'index'])->name('owner.dashboard');
-});
-
-// Routes untuk Pelanggan
-Route::middleware(['auth', 'role:pelanggan'])->get('/dashboard', [PelangganDashboard::class, 'index'])->name('pelanggan.dashboard');
-

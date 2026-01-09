@@ -1,4 +1,4 @@
-@extends('partials.app')
+@extends('layouts.app')
 
 @php
 use Illuminate\Support\HtmlString;
