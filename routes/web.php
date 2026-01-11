@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\LapanganController;
 use App\Http\Controllers\Admin\JadwalController;
+use App\Http\Controllers\Admin\JamOperasionalController;
 use App\Http\Controllers\Admin\PemesananController;
 use App\Http\Controllers\Admin\PembayaranController;
 use App\Http\Controllers\Admin\LaporanController;
@@ -29,6 +30,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         ->name('dashboard');
 
     Route::resource('lapangan', LapanganController::class);
+    Route::resource('jam-operasional', JamOperasionalController::class);
     Route::resource('jadwal', JadwalController::class)->except(['show']);
 
     Route::get('/pemesanan', [PemesananController::class, 'index'])
@@ -45,9 +47,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/users', [UserController::class, 'index'])
         ->name('users.index');
-
-    Route::get('/laporan', [LaporanController::class, 'index'])
-        ->name('laporan');
 });
 
 /*

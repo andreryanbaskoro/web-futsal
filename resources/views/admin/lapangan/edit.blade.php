@@ -18,7 +18,6 @@
 
         @include('admin.lapangan._form')
 
-        {{-- ACTION BUTTON --}}
         <div class="mt-6 flex justify-end gap-3">
 
             {{-- BATAL --}}
@@ -26,8 +25,8 @@
                 type="button"
                 @click="$store.modal.show('cancel')"
                 class="inline-flex items-center rounded-lg border border-gray-300 px-5 py-2.5
-                       text-sm font-medium text-gray-700 hover:bg-gray-100
-                       dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/5">
+                   text-sm font-medium text-gray-700 hover:bg-gray-100
+                   dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/5">
                 <i class="fas fa-times mr-2"></i> Batal
             </button>
 
@@ -35,15 +34,16 @@
             <button
                 type="button"
                 @click="
-                    if ($refs.lapanganForm.checkValidity()) {
-                        $store.modal.show('update')
-                    } else {
-                        $refs.lapanganForm.reportValidity()
-                    }
-                "
+                if ($refs.lapanganForm.checkValidity()) {
+                    $store.modal.formRef = $refs.lapanganForm;  // ← Assign form ke modal
+                    $store.modal.show('update')
+                } else {
+                    $refs.lapanganForm.reportValidity()
+                }
+            "
                 class="inline-flex items-center rounded-lg bg-brand-500
-                       px-5 py-2.5 text-sm font-medium text-white
-                       hover:bg-brand-600">
+                   px-5 py-2.5 text-sm font-medium text-white
+                   hover:bg-brand-600">
                 <i class="fas fa-save mr-2"></i> Perbarui
             </button>
 

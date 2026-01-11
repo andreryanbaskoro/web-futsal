@@ -7,14 +7,18 @@
     {{-- Include Flash Messages --}}
     @include('elements.flash-messages')
 
+    {{-- FORM --}}
     <form
-        x-ref="lapanganForm"
-        action="{{ route('admin.lapangan.store') }}"
+        x-ref="jamOperasionalForm"
+        action="{{ route('admin.jam-operasional.update', $jamOperasional->id_operasional) }}"
         method="POST">
         @csrf
+        @method('PUT')
 
-        @include('admin.lapangan._form')
+        {{-- FORM FIELDS --}}
+        @include('admin.jam-operasional._form')
 
+        {{-- ACTION BUTTON --}}
         <div class="mt-6 flex justify-end gap-3">
 
             {{-- BATAL --}}
@@ -27,31 +31,31 @@
                 <i class="fas fa-times mr-2"></i> Batal
             </button>
 
-            {{-- SIMPAN --}}
+            {{-- PERBARUI --}}
             <button
                 type="button"
                 @click="
-                if ($refs.lapanganForm.checkValidity()) {
-                    $store.modal.formRef = $refs.lapanganForm;  // ← Assign form ke modal
-                    $store.modal.show('save')
-                } else {
-                    $refs.lapanganForm.reportValidity()
-                }
-            "
+        if ($refs.jamOperasionalForm.checkValidity()) {
+            $store.modal.formRef = $refs.jamOperasionalForm;  // ← Assign form ke modal
+            $store.modal.show('update')
+        } else {
+            $refs.jamOperasionalForm.reportValidity()
+        }
+    "
                 class="inline-flex items-center rounded-lg bg-brand-500
-                   px-5 py-2.5 text-sm font-medium text-white
-                   hover:bg-brand-600">
-                <i class="fas fa-save mr-2"></i> Simpan
+           px-5 py-2.5 text-sm font-medium text-white
+           hover:bg-brand-600">
+                <i class="fas fa-save mr-2"></i> Perbarui
             </button>
+
 
         </div>
     </form>
-
 
 </div>
 
 @endsection
 
 @push('modals')
-@include('elements.modal-simpan')
+@include('elements.modal-perbarui')
 @endpush

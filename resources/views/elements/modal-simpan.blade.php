@@ -49,7 +49,7 @@
 
                         <button
                             type="button"
-                            @click="$store.modal.submitWithLoader($refs.lapanganForm)"
+                            @click="$store.modal.submitWithLoader($store.modal.formRef)"
                             class="rounded-lg bg-brand-500 px-4 py-2 text-sm text-white">
                             <i class="fas fa-save mr-2"></i> Simpan
                         </button>
@@ -77,7 +77,7 @@
                         </button>
 
                         <a
-                            href="{{ route('admin.lapangan.index') }}"
+                            :href="$store.modal.redirectRoute"
                             @click="$store.modal.isLoading = true"
                             class="rounded-lg bg-red-500 px-4 py-2 text-sm text-white">
                             Ya, Batalkan

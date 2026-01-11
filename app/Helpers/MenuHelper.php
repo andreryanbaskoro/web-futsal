@@ -13,6 +13,7 @@ class MenuHelper
         return [
             ['icon' => 'fa-solid fa-house', 'name' => 'Dashboard', 'path' => '/admin/dashboard'],
             ['icon' => 'fa-solid fa-futbol', 'name' => 'Data Lapangan', 'path' => '/admin/lapangan'],
+            ['icon' => 'fa-solid fa-clock', 'name' => 'Jam Operasional', 'path' => '/admin/jam-operasional'], // << Tambahan
             ['icon' => 'fa-solid fa-calendar', 'name' => 'Data Jadwal', 'path' => '/admin/jadwal'],
             ['icon' => 'fa-solid fa-file-invoice', 'name' => 'Data Pemesanan', 'path' => '/admin/pemesanan'],
             ['icon' => 'fa-solid fa-money-check-dollar', 'name' => 'Data Pembayaran', 'path' => '/admin/pembayaran'],
@@ -22,6 +23,7 @@ class MenuHelper
             ['icon' => 'fa-solid fa-right-from-bracket', 'name' => 'Logout', 'path' => '/logout'],
         ];
     }
+
 
     private static function ownerMenu(): array
     {

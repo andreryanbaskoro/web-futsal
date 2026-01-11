@@ -27,12 +27,16 @@ class LapanganController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi input
         $validated = $request->validate([
-            'nama_lapangan'  => 'required|string|max:100',
+            'nama_lapangan'  => 'required|string|max:30',
             'deskripsi'      => 'nullable|string',
-            'harga_per_jam'  => 'required|numeric|min:0',
             'status'         => 'required|in:aktif,nonaktif',
+        ], [
+            'nama_lapangan.required' => 'Kolom nama lapangan wajib diisi.',
+            'nama_lapangan.max'      => 'Kolom nama lapangan tidak boleh lebih dari 30 karakter.',
+            'deskripsi.string'       => 'Kolom deskripsi harus berupa teks.',
+            'status.required'        => 'Kolom status wajib diisi.',
+            'status.in'              => 'Kolom status harus salah satu dari: aktif, nonaktif.',
         ]);
 
         try {
@@ -41,16 +45,15 @@ class LapanganController extends Controller
             return redirect()->route('admin.lapangan.index')
                 ->with('success', 'Lapangan berhasil ditambahkan');
         } catch (\Exception $e) {
-            // Tangani error lain yang tidak tertangani oleh validasi
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Terjadi kesalahan saat menambahkan lapangan: ' . $e->getMessage());
         }
     }
 
-    public function edit($id)
+    public function edit($id_lapangan)
     {
-        $lapangan = Lapangan::findOrFail($id);
+        $lapangan = Lapangan::findOrFail($id_lapangan);
 
         return view('admin.lapangan.edit', [
             'title'    => 'Edit Lapangan',
@@ -58,15 +61,20 @@ class LapanganController extends Controller
         ]);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $id_lapangan)
     {
-        $lapangan = Lapangan::findOrFail($id);
+        $lapangan = Lapangan::findOrFail($id_lapangan);
 
         $validated = $request->validate([
-            'nama_lapangan'  => 'required|string|max:100',
+            'nama_lapangan'  => 'required|string|max:30',
             'deskripsi'      => 'nullable|string',
-            'harga_per_jam'  => 'required|numeric|min:0',
             'status'         => 'required|in:aktif,nonaktif',
+        ], [
+            'nama_lapangan.required' => 'Kolom nama lapangan wajib diisi.',
+            'nama_lapangan.max'      => 'Kolom nama lapangan tidak boleh lebih dari 30 karakter.',
+            'deskripsi.string'       => 'Kolom deskripsi harus berupa teks.',
+            'status.required'        => 'Kolom status wajib diisi.',
+            'status.in'              => 'Kolom status harus salah satu dari: aktif, nonaktif.',
         ]);
 
         try {
@@ -81,9 +89,9 @@ class LapanganController extends Controller
         }
     }
 
-    public function destroy($id)
+    public function destroy($id_lapangan)
     {
-        $lapangan = Lapangan::findOrFail($id);
+        $lapangan = Lapangan::findOrFail($id_lapangan);
 
         try {
             $lapangan->delete();

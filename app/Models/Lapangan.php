@@ -15,15 +15,14 @@ class Lapangan extends Model
     // 🔹 Primary key
     protected $primaryKey = 'id_lapangan';
 
-    public $incrementing = true;
-
-    protected $keyType = 'int';
+    // Primary key string, bukan auto-increment integer
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     // 🔹 Kolom yang boleh diisi
     protected $fillable = [
         'nama_lapangan',
         'deskripsi',
-        'harga_per_jam',
         'status',
     ];
 
@@ -47,6 +46,12 @@ class Lapangan extends Model
         return $this->hasMany(Pemesanan::class, 'id_lapangan', 'id_lapangan');
     }
 
+    // 1 lapangan punya banyak jam_operasional
+    public function jamOperasional()
+    {
+        return $this->hasMany(JamOperasional::class, 'id_lapangan', 'id_lapangan');
+    }
+
     /* =======================
      * SCOPE (OPSIONAL)
      * =======================
@@ -56,5 +61,26 @@ class Lapangan extends Model
     public function scopeAktif($query)
     {
         return $query->where('status', 'aktif');
+    }
+
+    /* =======================
+     * EVENT MODEL
+     * =======================
+     */
+
+    // Generate ID sebelum insert
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($lapangan) {
+            if (empty($lapangan->id_lapangan)) {
+                $last = self::orderBy('id_lapangan', 'desc')->first();
+
+                $lastNumber = $last ? (int) substr($last->id_lapangan, 4) : 0;
+
+                $lapangan->id_lapangan = 'LPG-' . str_pad($lastNumber + 1, 2, '0', STR_PAD_LEFT);
+            }
+        });
     }
 }

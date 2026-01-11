@@ -11,82 +11,116 @@ class JadwalController extends Controller
 {
     public function index()
     {
-        $jadwals = Jadwal::with('lapangan')->orderBy('tanggal')->orderBy('jam_mulai')->get();
+        // Urut berdasarkan id_jadwal (string)
+        $jadwal = Jadwal::orderBy('id_jadwal', 'desc')->get();
 
         return view('admin.jadwal.index', [
             'title' => 'Data Jadwal',
-            'jadwals' => $jadwals,
+            'jadwal' => $jadwal,
         ]);
     }
 
     public function create()
     {
-        $lapangans = Lapangan::aktif()->get();
+        // Ambil data lapangan untuk pilihan pada form
+        $lapangan = Lapangan::all();
+
         return view('admin.jadwal.create', [
             'title' => 'Tambah Jadwal',
-            'lapangans' => $lapangans,
+            'lapangan' => $lapangan,
         ]);
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'id_lapangan' => 'required|exists:lapangan,id_lapangan',
-            'tanggal'     => 'required|date',
-            'jam_mulai'   => 'required|date_format:H:i',
-            'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
+        // Validasi input dengan pesan khusus bahasa Indonesia
+        $validated = $request->validate([
+            'id_lapangan'  => 'required|exists:lapangan,id_lapangan',
+            'tanggal'       => 'required|date',
+            'jam_mulai'     => 'required|date_format:H:i',
+            'jam_selesai'   => 'required|date_format:H:i|after:jam_mulai',
+        ], [
+            'id_lapangan.required' => 'Lapangan harus dipilih.',
+            'id_lapangan.exists'   => 'Lapangan yang dipilih tidak valid.',
+            'tanggal.required'     => 'Tanggal jadwal harus diisi.',
+            'tanggal.date'         => 'Tanggal harus valid.',
+            'jam_mulai.required'   => 'Jam mulai harus diisi.',
+            'jam_mulai.date_format' => 'Format jam mulai tidak valid (gunakan H:i).',
+            'jam_selesai.required' => 'Jam selesai harus diisi.',
+            'jam_selesai.date_format' => 'Format jam selesai tidak valid (gunakan H:i).',
+            'jam_selesai.after'    => 'Jam selesai harus lebih dari jam mulai.',
         ]);
 
-        // Pastikan tidak ada jadwal identik (satu lapangan, tanggal, jam_mulai sama)
-        $exists = Jadwal::where('id_lapangan', $request->id_lapangan)
-            ->where('tanggal', $request->tanggal)
-            ->where('jam_mulai', $request->jam_mulai)
-            ->exists();
+        try {
+            Jadwal::create($validated);
 
-        if ($exists) {
-            return back()->withInput()->with('error', 'Jadwal sudah ada untuk slot tersebut');
+            return redirect()->route('admin.jadwal.index')
+                ->with('success', 'Jadwal berhasil ditambahkan');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Terjadi kesalahan saat menambahkan jadwal: ' . $e->getMessage());
         }
-
-        Jadwal::create($request->only(['id_lapangan','tanggal','jam_mulai','jam_selesai']));
-
-        return redirect()->route('admin.jadwal.index')->with('success','Jadwal berhasil dibuat');
     }
 
-    public function edit($id)
+    public function edit($id_jadwal)
     {
-        $jadwal = Jadwal::findOrFail($id);
-        $lapangans = Lapangan::aktif()->get();
+        $jadwal = Jadwal::findOrFail($id_jadwal);
+        $lapangan = Lapangan::all(); // Ambil data lapangan untuk pilihan pada form
 
         return view('admin.jadwal.edit', [
-            'title' => 'Edit Jadwal',
+            'title'  => 'Edit Jadwal',
             'jadwal' => $jadwal,
-            'lapangans' => $lapangans,
+            'lapangan' => $lapangan,
         ]);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $id_jadwal)
     {
-        $jadwal = Jadwal::findOrFail($id);
+        $jadwal = Jadwal::findOrFail($id_jadwal);
 
-        $request->validate([
-            'id_lapangan' => 'required|exists:lapangan,id_lapangan',
-            'tanggal'     => 'required|date',
-            'jam_mulai'   => 'required|date_format:H:i',
-            'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
+        // Validasi input dengan pesan khusus bahasa Indonesia
+        $validated = $request->validate([
+            'id_lapangan'  => 'required|exists:lapangan,id_lapangan',
+            'tanggal'       => 'required|date',
+            'jam_mulai'     => 'required|date_format:H:i',
+            'jam_selesai'   => 'required|date_format:H:i|after:jam_mulai',
+        ], [
+            'id_lapangan.required' => 'Lapangan harus dipilih.',
+            'id_lapangan.exists'   => 'Lapangan yang dipilih tidak valid.',
+            'tanggal.required'     => 'Tanggal jadwal harus diisi.',
+            'tanggal.date'         => 'Tanggal harus valid.',
+            'jam_mulai.required'   => 'Jam mulai harus diisi.',
+            'jam_mulai.date_format' => 'Format jam mulai tidak valid (gunakan H:i).',
+            'jam_selesai.required' => 'Jam selesai harus diisi.',
+            'jam_selesai.date_format' => 'Format jam selesai tidak valid (gunakan H:i).',
+            'jam_selesai.after'    => 'Jam selesai harus lebih dari jam mulai.',
         ]);
 
-        $jadwal->update($request->only(['id_lapangan','tanggal','jam_mulai','jam_selesai']));
+        try {
+            $jadwal->update($validated);
 
-        return redirect()->route('admin.jadwal.index')->with('success','Jadwal berhasil diperbarui');
+            return redirect()->route('admin.jadwal.index')
+                ->with('success', 'Jadwal berhasil diperbarui');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Terjadi kesalahan saat memperbarui jadwal: ' . $e->getMessage());
+        }
     }
 
-    public function destroy($id)
+    public function destroy($id_jadwal)
     {
-        $jadwal = Jadwal::findOrFail($id);
+        $jadwal = Jadwal::findOrFail($id_jadwal);
 
-        // Bisa tambahkan pengecekan jika sudah dibooking
-        $jadwal->delete();
+        try {
+            $jadwal->delete();
 
-        return redirect()->route('admin.jadwal.index')->with('success','Jadwal berhasil dihapus');
+            return redirect()->route('admin.jadwal.index')
+                ->with('success', 'Jadwal berhasil dihapus');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Terjadi kesalahan saat menghapus jadwal: ' . $e->getMessage());
+        }
     }
 }

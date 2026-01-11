@@ -49,7 +49,7 @@
 
                         <button
                             type="button"
-                            @click="$store.modal.submitWithLoader($refs.lapanganForm)"
+                            @click="$store.modal.submitWithLoader($store.modal.formRef)"
                             class="rounded-lg bg-blue-500 px-4 py-2 text-sm text-white">
                             <i class="fas fa-pen mr-2"></i> Perbarui
                         </button>

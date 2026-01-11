@@ -7,13 +7,14 @@
     {{-- Include Flash Messages --}}
     @include('elements.flash-messages')
 
+    {{-- FORM --}}
     <form
-        x-ref="lapanganForm"
-        action="{{ route('admin.lapangan.store') }}"
+        x-ref="jamOperasionalForm"
+        action="{{ route('admin.jam-operasional.store') }}"
         method="POST">
         @csrf
 
-        @include('admin.lapangan._form')
+        @include('admin.jam_operasional._form')
 
         <div class="mt-6 flex justify-end gap-3">
 
@@ -31,11 +32,11 @@
             <button
                 type="button"
                 @click="
-                if ($refs.lapanganForm.checkValidity()) {
-                    $store.modal.formRef = $refs.lapanganForm;  // ← Assign form ke modal
+                if ($refs.jamOperasionalForm.checkValidity()) {
+                    $store.modal.formRef = $refs.jamOperasionalForm;  // ← Assign form ke modal store
                     $store.modal.show('save')
                 } else {
-                    $refs.lapanganForm.reportValidity()
+                    $refs.jamOperasionalForm.reportValidity()
                 }
             "
                 class="inline-flex items-center rounded-lg bg-brand-500
