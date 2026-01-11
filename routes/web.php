@@ -18,6 +18,33 @@ use App\Http\Controllers\Pelanggan\DashboardController as PelangganDashboard;
 use App\Http\Controllers\Pelanggan\BookingController;
 use App\Http\Controllers\Pelanggan\ProfilController;
 
+use App\Http\Controllers\Landing\LandingController;
+
+/*
+|--------------------------------------------------------------------------
+| AUTH
+|--------------------------------------------------------------------------
+*/
+
+/*
+|--------------------------------------------------------------------------
+| LANDING PAGE
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/', [LandingController::class, 'beranda'])->name('beranda');
+Route::get('/lapangan', [LandingController::class, 'lapangan'])->name('lapangan');
+Route::get('/jadwal', [LandingController::class, 'jadwal'])->name('jadwal');
+Route::get('/galeri', [LandingController::class, 'galeri'])->name('galeri');
+Route::get('/blog', [LandingController::class, 'blog'])->name('blog');
+Route::get('/blog-detail', [LandingController::class, 'blog-detail'])->name('blog-detail');
+Route::get('/kontak', [LandingController::class, 'kontak'])->name('kontak');
+Route::get('/syarat', [LandingController::class, 'syarat'])->name('syarat');
+Route::get('/faq', [LandingController::class, 'faq'])->name('faq');
+Route::get('/tentang', [LandingController::class, 'tentang'])->name('tentang');
+
+
+
 /*
 |--------------------------------------------------------------------------
 | ADMIN
