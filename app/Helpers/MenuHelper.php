@@ -40,15 +40,39 @@ class MenuHelper
     private static function pelangganMenu(): array
     {
         return [
-            ['icon' => 'fa-solid fa-house', 'name' => 'Dashboard', 'path' => '/pelanggan/dashboard'],
-            ['icon' => 'fa-solid fa-calendar-days', 'name' => 'Jadwal Lapangan', 'path' => '/pelanggan/jadwal'],
-            ['icon' => 'fa-solid fa-clipboard-list', 'name' => 'Pemesanan', 'path' => '/pelanggan/pemesanan'],
-            ['icon' => 'fa-solid fa-credit-card', 'name' => 'Pembayaran', 'path' => '/pelanggan/pembayaran'],
-            ['icon' => 'fa-solid fa-clock-rotate-left', 'name' => 'Riwayat Pemesanan', 'path' => '/pelanggan/riwayat'],
-            ['icon' => 'fa-solid fa-user', 'name' => 'Profil', 'path' => '/pelanggan/profil'],
-            ['icon' => 'fa-solid fa-right-from-bracket', 'name' => 'Logout', 'path' => '/logout'],
+            [
+                'icon' => 'fa-solid fa-house',
+                'name' => 'Dashboard',
+                'path' => '/pelanggan/dashboard',
+                'active_paths' => [
+                    'pelanggan/dashboard',
+                ],
+            ],
+            [
+                'icon' => 'fa-solid fa-futbol',
+                'name' => 'Lapangan',
+                'path' => '/pelanggan/lapangan',
+                'active_paths' => [
+                    'pelanggan/lapangan',
+                ],
+            ],
+            [
+                'icon' => 'fa-solid fa-calendar-days',
+                'name' => 'Jadwal',
+                'path' => '/pelanggan/jadwal',
+                'active_paths' => [
+                    'pelanggan/jadwal',
+                ],
+            ],
+            [
+                'icon' => 'fa-solid fa-right-from-bracket',
+                'name' => 'Logout',
+                'path' => '/logout',
+            ],
         ];
     }
+
+
 
     /* =====================================================
      | MAIN NAV (AUTO BY URL PREFIX)

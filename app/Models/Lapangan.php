@@ -24,7 +24,12 @@ class Lapangan extends Model
         'nama_lapangan',
         'deskripsi',
         'status',
+        'dimensi',
+        'kapasitas',
+        'rating',
+        'rating_count',
     ];
+
 
     // 🔹 Timestamp aktif
     public $timestamps = true;
@@ -63,6 +68,12 @@ class Lapangan extends Model
         return $query->where('status', 'aktif');
     }
 
+    public function ulasan()
+    {
+        return $this->hasMany(Ulasan::class, 'id_lapangan', 'id_lapangan');
+    }
+
+
     /* =======================
      * EVENT MODEL
      * =======================
@@ -82,5 +93,17 @@ class Lapangan extends Model
                 $lapangan->id_lapangan = 'LPG-' . str_pad($lastNumber + 1, 2, '0', STR_PAD_LEFT);
             }
         });
+    }
+
+    public function refreshRating()
+    {
+        $data = $this->ulasan()
+            ->selectRaw('AVG(rating) as avg_rating, COUNT(*) as total')
+            ->first();
+
+        $this->update([
+            'rating' => round($data->avg_rating ?? 0, 1),
+            'rating_count' => $data->total ?? 0,
+        ]);
     }
 }

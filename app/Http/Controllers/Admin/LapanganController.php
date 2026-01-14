@@ -28,15 +28,18 @@ class LapanganController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama_lapangan'  => 'required|string|max:30',
-            'deskripsi'      => 'nullable|string',
-            'status'         => 'required|in:aktif,nonaktif',
+            'nama_lapangan' => 'required|string|max:30',
+            'deskripsi'     => 'nullable|string',
+            'dimensi'       => 'nullable|string|max:20',
+            'kapasitas'     => 'nullable|string|max:20',
+            'status'        => 'required|in:aktif,nonaktif',
         ], [
             'nama_lapangan.required' => 'Kolom nama lapangan wajib diisi.',
             'nama_lapangan.max'      => 'Kolom nama lapangan tidak boleh lebih dari 30 karakter.',
-            'deskripsi.string'       => 'Kolom deskripsi harus berupa teks.',
+            'dimensi.max'            => 'Dimensi maksimal 20 karakter.',
+            'kapasitas.max'          => 'Kapasitas maksimal 20 karakter.',
             'status.required'        => 'Kolom status wajib diisi.',
-            'status.in'              => 'Kolom status harus salah satu dari: aktif, nonaktif.',
+            'status.in'              => 'Status harus aktif atau nonaktif.',
         ]);
 
         try {
@@ -68,6 +71,8 @@ class LapanganController extends Controller
         $validated = $request->validate([
             'nama_lapangan'  => 'required|string|max:30',
             'deskripsi'      => 'nullable|string',
+            'dimensi'        => 'nullable|string|max:20',
+            'kapasitas'      => 'nullable|string|max:20',
             'status'         => 'required|in:aktif,nonaktif',
         ], [
             'nama_lapangan.required' => 'Kolom nama lapangan wajib diisi.',
@@ -75,6 +80,8 @@ class LapanganController extends Controller
             'deskripsi.string'       => 'Kolom deskripsi harus berupa teks.',
             'status.required'        => 'Kolom status wajib diisi.',
             'status.in'              => 'Kolom status harus salah satu dari: aktif, nonaktif.',
+            'dimensi.max'            => 'Dimensi maksimal 20 karakter.',
+            'kapasitas.max'          => 'Kapasitas maksimal 20 karakter.',
         ]);
 
         try {

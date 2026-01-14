@@ -39,7 +39,6 @@
         <h4 class="footer-title">Informasi</h4>
         <ul class="footer-links">
           <li><a href="{{ route('tentang') }}">Tentang Kami</a></li>
-          <li><a href="#">Ulasan</a></li>
           <li><a href="{{ route('faq') }}">FAQ</a></li>
           <li><a href="{{ route('kontak') }}">Kontak</a></li>
           <li><a href="{{ route('syarat') }}">Syarat & Ketentuan</a></li>

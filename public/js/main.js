@@ -333,3 +333,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
     console.log("🎾 FUSTAL ACR - Ready to play!");
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+  const profileToggle = document.getElementById("profileToggle");
+  const profileMenu = document.getElementById("profileMenu");
+
+  if (profileToggle) {
+    profileToggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      profileMenu.classList.toggle("show");
+      profileToggle.classList.toggle("active");
+    });
+  }
+
+  // Tutup dropdown saat klik di luar
+  document.addEventListener("click", () => {
+    profileMenu.classList.remove("show");
+    profileToggle.classList.remove("active");
+  });
+});
+

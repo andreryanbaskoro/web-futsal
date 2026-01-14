@@ -14,9 +14,12 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Owner\DashboardController as OwnerDashboard;
 use App\Http\Controllers\Owner\LaporanController as OwnerLaporan;
 
-use App\Http\Controllers\Pelanggan\DashboardController as PelangganDashboard;
+use App\Http\Controllers\Pelanggan\LapanganController as PelangganLapangan;
+use App\Http\Controllers\Pelanggan\JadwalController as PelangganJadwal;
 use App\Http\Controllers\Pelanggan\BookingController;
-use App\Http\Controllers\Pelanggan\ProfilController;
+use App\Http\Controllers\Pelanggan\PaymentController;
+
+use App\Http\Controllers\MidtransController; // untuk webhook
 
 use App\Http\Controllers\Landing\LandingController;
 
@@ -101,29 +104,28 @@ Route::prefix('owner')->name('owner.')->group(function () {
 | PELANGGAN
 |--------------------------------------------------------------------------
 */
+
+
 Route::prefix('pelanggan')->name('pelanggan.')->group(function () {
+    Route::get('/lapangan', [PelangganLapangan::class, 'index'])->name('lapangan');
+    Route::get('/jadwal', [PelangganJadwal::class, 'index'])->name('jadwal');
+    Route::get('/jadwal/slots', [PelangganJadwal::class, 'slots'])->name('jadwal.slots');
 
-    Route::get('/dashboard', [PelangganDashboard::class, 'index'])
-        ->name('dashboard');
+    // Booking
+    Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
+    Route::get('/booking-confirm/{kode}', [BookingController::class, 'bookingConfirm'])->name('booking.confirm');
 
-    Route::get('/jadwal', [BookingController::class, 'jadwal'])
-        ->name('jadwal');
+    // Halaman pembayaran
+    Route::get('/payment/{kode}', [BookingController::class, 'payment'])->name('payment');
 
-    Route::post('/pesan', [BookingController::class, 'pesan'])
-        ->name('pesan');
+    // Riwayat booking
+    Route::get('/booking-history', [BookingController::class, 'bookingHistory'])->name('booking.history');
 
-    Route::get('/pemesanan', [BookingController::class, 'pemesanan'])
-        ->name('pemesanan');
-
-    Route::get('/pembayaran/{id}', [BookingController::class, 'pembayaran'])
-        ->name('pembayaran');
-
-    Route::get('/riwayat', [BookingController::class, 'riwayat'])
-        ->name('riwayat');
-
-    Route::get('/profil', [ProfilController::class, 'index'])
-        ->name('profil.index');
-
-    Route::put('/profil', [ProfilController::class, 'update'])
-        ->name('profil.update');
+    // ✅ Route baru untuk membuat snap token (AJAX)
+    Route::post('/payment/create-snap', [PaymentController::class, 'createSnap'])
+        ->name('payment.create_snap');
 });
+
+// ✅ Route Midtrans notification (bisa di luar prefix pelanggan)
+Route::post('/midtrans/notification', [MidtransController::class, 'notification'])
+    ->name('midtrans.notification');

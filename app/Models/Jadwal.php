@@ -34,6 +34,16 @@ class Jadwal extends Model
      * ======================= 
      */
 
+    public function pemesananJadwal()
+    {
+        return $this->hasOne(
+            PemesananJadwal::class,
+            'id_jadwal',
+            'id_jadwal'
+        );
+    }
+
+
     public function lapangan()
     {
         return $this->belongsTo(Lapangan::class, 'id_lapangan', 'id_lapangan');
@@ -51,10 +61,13 @@ class Jadwal extends Model
 
     public function isTersedia()
     {
-        return !$this->pemesanan()
-            ->whereIn('status_pemesanan', ['pending', 'dibayar'])
+        return !$this->pemesananJadwal()
+            ->whereHas('pemesanan', function ($q) {
+                $q->whereIn('status_pemesanan', ['pending', 'dibayar']);
+            })
             ->exists();
     }
+
 
     /* =======================
      * SCOPE
@@ -74,37 +87,37 @@ class Jadwal extends Model
      */
 
     // Generate ID before insert
-    protected static function boot()
+    protected static function booted()
     {
-        parent::boot();
-
         static::creating(function ($jadwal) {
-            if (empty($jadwal->id_jadwal)) {
-                // Generate the date part (YYYYMMDD)
-                $datePart = Carbon::now()->format('Ymd');
 
-                // Get the latest `id_jadwal` to extract the sequence number
-                $lastJadwal = self::where('id_lapangan', $jadwal->id_lapangan)
-                    ->orderBy('id_jadwal', 'desc')
-                    ->first();
+            if ($jadwal->id_jadwal) return;
 
-                // Extract sequence number (after the first dash) and increment
-                if ($lastJadwal) {
-                    $lastSequence = (int) substr($lastJadwal->id_jadwal, 9, 3); // Get the 3 digits sequence
-                } else {
-                    $lastSequence = 0;
-                }
+            // 1️⃣ Pakai tanggal jadwal (BUKAN now)
+            $datePart = Carbon::parse($jadwal->tanggal)->format('Ymd');
 
-                // Increment sequence number and pad it to 3 digits
-                $sequenceNumber = str_pad($lastSequence + 1, 3, '0', STR_PAD_LEFT);
+            // 2️⃣ Ambil lapangan
+            $lapangan = Lapangan::findOrFail($jadwal->id_lapangan);
+            $lapanganCode = $lapangan->id_lapangan; // LPG-01
 
-                // Create the final ID (YYYYMMDD-001-LPG-01)
-                $lapangan = Lapangan::find($jadwal->id_lapangan);
-                $lapanganCode = $lapangan ? $lapangan->id_lapangan : 'LPG-00';
+            // 3️⃣ Cari sequence terakhir untuk tanggal & lapangan ini
+            $last = self::where('id_lapangan', $jadwal->id_lapangan)
+                ->whereDate('tanggal', $jadwal->tanggal)
+                ->where('id_jadwal', 'like', "{$datePart}-{$lapanganCode}-%")
+                ->orderBy('id_jadwal', 'desc')
+                ->lockForUpdate()
+                ->first();
 
-                // Combine everything into the final ID format
-                $jadwal->id_jadwal = $datePart . '-' . $sequenceNumber . '-' . $lapanganCode;
-            }
+            $lastSequence = $last
+                ? (int) substr($last->id_jadwal, -3)
+                : 0;
+
+            // 4️⃣ Next sequence
+            $nextSequence = str_pad($lastSequence + 1, 3, '0', STR_PAD_LEFT);
+
+            // 5️⃣ Final ID
+            $jadwal->id_jadwal =
+                "{$datePart}-{$lapanganCode}-{$nextSequence}";
         });
     }
 }

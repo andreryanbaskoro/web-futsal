@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Landing;
 
 use App\Http\Controllers\Controller;
+use App\Models\Lapangan;
 
 class LandingController extends Controller
 {
@@ -18,7 +19,9 @@ class LandingController extends Controller
 
     public function jadwal()
     {
-        return view('landing.jadwal');
+        $lapangans = Lapangan::where('status', 'aktif')->orderBy('nama_lapangan')->get();
+        $today = \Carbon\Carbon::now()->toDateString(); // biar date input default jalan
+        return view('landing.jadwal', compact('lapangans', 'today'));
     }
 
     public function galeri()
@@ -45,5 +48,4 @@ class LandingController extends Controller
     {
         return view('landing.tentang');
     }
-
 }

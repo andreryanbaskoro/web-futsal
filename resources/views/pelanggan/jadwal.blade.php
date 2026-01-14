@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.pelanggan')
 
 @section('title', 'Cek Jadwal & Booking Lapangan')
 
@@ -209,24 +209,12 @@ $today = Carbon::now()->toDateString();
                         <span class="value" id="sumTotal">Rp 0</span>
                     </div>
 
-                    @auth
-                    <form method="POST" action="#">
-                        @csrf
-                        <input type="hidden" name="jadwal_ids" id="form_jadwal_ids">
-                        <button class="btn btn-primary w-full mt-lg">
-                            <i class="fas fa-lock"></i> Booking
-                        </button>
-                    </form>
-                    @else
-                    <a href="#" class="btn btn-primary w-full mt-lg">
-                        <i class="fas fa-lock"></i> Login untuk Booking
-                    </a>
-                    @endauth
+                    <button
+                        id="bookingBtn"
+                        class="btn btn-primary w-full mt-lg">
+                        Booking
+                    </button>
 
-                    <p style="text-align:center;font-size:13px;color:#6b7280;margin-top:12px">
-                        Belum punya akun?
-                        <a href="#" style="color:#3b82f6">Daftar di sini</a>
-                    </p>
                 </div>
             </div>
 
@@ -275,7 +263,7 @@ $today = Carbon::now()->toDateString();
         slots.forEach(s => {
             const el = document.createElement('div');
             el.className = 'time-slot ' + (s.status !== 'tersedia' ? 'booked' : '');
-            el.innerHTML = `<div class="time">${s.jam}</div><div class="price">${rupiah(s.harga)}${s.status !== 'tersedia' ? ' <i class="fas fa-lock"></i>' : ''}</div>`;
+            el.innerHTML = `<div class="time">${s.jam}</div><div class="price">${rupiah(s.harga)}${s.status !== 'tersedia' ? '' : ''}</div>`;
 
             if (s.status === 'tersedia') {
                 el.onclick = () => toggle(el, s);
@@ -357,6 +345,31 @@ $today = Carbon::now()->toDateString();
         summaryEmpty.style.display = 'block';
         summaryFilled.style.display = 'none';
     }
+
+    document.getElementById('bookingBtn').addEventListener('click', function() {
+
+        if (!selectedSlots.length) {
+            alert('Pilih slot terlebih dahulu');
+            return;
+        }
+
+        fetch("{{ route('pelanggan.booking.store') }}", {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    jadwal_ids: selectedSlots.map(s => s.id_jadwal)
+                })
+            }).then(res => res.json())
+            .then(data => {
+                window.location.href =
+                    "{{ url('/pelanggan/booking-confirm') }}/" + data.kode;
+            });
+
+
+    });
 </script>
 
 @endsection

@@ -54,6 +54,24 @@
                             <th class="px-4 py-3 text-sm text-gray-500 text-left" @click="sortBy('deskripsi')" data-sort="deskripsi">
                                 Deskripsi
                             </th>
+                            <th class="px-4 py-3 text-sm text-gray-500 text-left"
+                                @click="sortBy('dimensi')"
+                                data-sort="dimensi">
+                                Dimensi
+                            </th>
+
+                            <th class="px-4 py-3 text-sm text-gray-500 text-left"
+                                @click="sortBy('kapasitas')"
+                                data-sort="kapasitas">
+                                Kapasitas
+                            </th>
+
+                            <th class="px-4 py-3 text-sm text-gray-500 text-left"
+                                @click="sortBy('rating')"
+                                data-sort="rating">
+                                Rating
+                            </th>
+
                             <th class="px-4 py-3 text-sm text-gray-500 text-left" @click="sortBy('status')" data-sort="status">
                                 Status
                             </th>
@@ -83,6 +101,24 @@
                                 <td class="px-4 py-4 text-sm text-gray-500 max-w-xs truncate"
                                     x-text="item.deskripsi">
                                 </td>
+                                <td class="px-4 py-4 text-sm text-gray-600">
+                                    <span x-text="item.dimensi ?? '-'"></span>
+                                </td>
+
+                                <td class="px-4 py-4 text-sm text-gray-600">
+                                    <span x-text="item.kapasitas ?? '-'"></span>
+                                </td>
+
+                                <td class="px-4 py-4 text-sm text-gray-600">
+                                    <div class="flex items-center gap-1">
+                                        <i class="fas fa-star text-yellow-400"></i>
+                                        <span x-text="item.rating ?? '0.0'"></span>
+                                        <span class="text-xs text-gray-400">
+                                            (<span x-text="item.rating_count ?? 0"></span>)
+                                        </span>
+                                    </div>
+                                </td>
+
                                 <td class="px-4 py-4">
                                     <span
                                         class="inline-flex rounded-full px-2 py-1 text-xs font-semibold"
