@@ -9,11 +9,12 @@
      <div class="navbar-menu" id="navbarMenu">
        <ul class="navbar-nav">
          <li>
-           <a href="#"
-             class="nav-link {{ request()->routeIs('beranda') ? 'active' : '' }}">
+           <a href="{{ route('pelanggan.beranda') }}"
+             class="nav-link {{ request()->routeIs('pelanggan.beranda') ? 'active' : '' }}">
              Beranda
            </a>
          </li>
+
 
          <li>
            <a href="{{ route('pelanggan.lapangan') }}"
@@ -30,39 +31,51 @@
            </a>
          </li>
          <li>
-           <a href="#"
-             class="nav-link {{ request()->routeIs('pelanggan.pemesanan*') ? 'active' : '' }}">
+           <a href="{{ route('pelanggan.booking.history') }}"
+             class="nav-link {{ request()->routeIs('pelanggan.booking.history') ? 'active' : '' }}">
              Pemesanan Saya
            </a>
          </li>
+
        </ul>
 
        <div class="profile-dropdown">
          <button class="profile-btn" id="profileToggle">
            <i class="fas fa-user"></i>
-           <span>Profile</span>
+           <span>{{ explode(' ', Auth::user()->nama)[0] }}</span> <!-- Ambil nama depan -->
            <i class="fas fa-chevron-down arrow"></i>
          </button>
 
          <ul class="profile-menu" id="profileMenu">
            <li>
              <a href="#">
-               <i class="fas fa-id-card"></i> Profil Saya
+               <i class="fas fa-id-card"></i>
+               Profil Saya
              </a>
            </li>
+
            <li>
-             <a href="#">
-               <i class="fas fa-receipt"></i> Riwayat Pemesanan
+             <a href="{{ route('pelanggan.booking.history') }}">
+               <i class="fas fa-receipt"></i>
+               Riwayat Pemesanan
              </a>
            </li>
+
            <li class="divider"></li>
+
            <li>
-             <a href="#" class="logout">
-               <i class="fas fa-sign-out-alt"></i> Logout
-             </a>
+             <form method="POST" action="{{ route('logout') }}">
+               @csrf
+               <button type="submit" class="logout-btn">
+                 <i class="fas fa-sign-out-alt"></i>
+                 Logout
+               </button>
+             </form>
            </li>
          </ul>
        </div>
+
+
 
 
 

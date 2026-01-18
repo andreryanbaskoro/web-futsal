@@ -122,4 +122,8 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'validation' => [
+        'stop_on_first_failure' => false, // true = 1 error, false = semua error
+    ],
+
 ];

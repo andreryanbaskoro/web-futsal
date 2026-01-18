@@ -130,28 +130,28 @@
             </div>
 
 
-            <!-- ACTION -->
-            <div style="display:grid;gap:var(--space-md);">
-                <!-- Lanjut ke pembayaran: kirim kode pemesanan -->
-                <a href="{{ route('pelanggan.payment', ['kode' => $pemesanan->kode_pemesanan]) }}" class="btn btn-primary btn-lg w-full">
+            <div class="space-y-4">
+                <button onclick="payNow('{{ $pemesanan->kode_pemesanan }}')"
+                    class="btn btn-primary btn-lg w-full">
                     <i class="fas fa-credit-card"></i> Lanjut ke Pembayaran
-                </a>
+                </button>
 
-                <!-- Lihat riwayat booking -->
                 <a href="{{ route('pelanggan.booking.history') }}" class="btn btn-outline w-full">
                     <i class="fas fa-history"></i> Lihat Riwayat Booking
                 </a>
             </div>
 
-            <div style="text-align:center;margin-top:var(--space-xl);padding:var(--space-lg);background:rgba(29,185,84,.1);border-radius:var(--radius-lg);">
-                <p style="font-size:var(--text-sm);color:var(--color-gray-700);">
-                    <i class="fas fa-info-circle" style="color:var(--color-primary);"></i>
-                    Detail booking juga telah dikirim ke email Anda.
-                </p>
-            </div>
-
-
         </div>
+
+        <div style="text-align:center;margin-top:var(--space-xl);padding:var(--space-lg);background:rgba(29,185,84,.1);border-radius:var(--radius-lg);">
+            <p style="font-size:var(--text-sm);color:var(--color-gray-700);">
+                <i class="fas fa-info-circle" style="color:var(--color-primary);"></i>
+                Detail booking juga telah dikirim ke email Anda.
+            </p>
+        </div>
+
+
+    </div>
     </div>
 </section>
 
@@ -187,5 +187,78 @@
 
     updateCountdown();
 </script>
+
+<script src="https://app.sandbox.midtrans.com/snap/snap.js"
+    data-client-key="{{ config('services.midtrans.client_key') }}"></script>
+
+<script>
+    function payNow(kode) {
+        fetch("{{ route('pelanggan.payment.create_snap') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    kode: kode
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.snap_token) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: 'Gagal memulai pembayaran'
+                    });
+                    return;
+                }
+
+                snap.pay(data.snap_token, {
+                    onSuccess: function(result) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: 'Pembayaran berhasil!'
+                        }).then(() => {
+                            window.location.href = "{{ route('pelanggan.booking.history') }}";
+                        });
+                    },
+                    onPending: function(result) {
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Menunggu Pembayaran',
+                            text: 'Pembayaran pending, silakan selesaikan pembayaran.'
+                        }).then(() => {
+                            window.location.href = "{{ route('pelanggan.booking.history') }}";
+                        });
+                    },
+                    onError: function(result) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: 'Pembayaran gagal!'
+                        });
+                    },
+                    onClose: function() {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Dibatalkan',
+                            text: 'Popup pembayaran ditutup'
+                        });
+                    }
+                });
+            })
+            .catch(() => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Terjadi kesalahan server'
+                });
+            });
+    }
+</script>
+
+
 
 @endsection

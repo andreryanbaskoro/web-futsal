@@ -363,9 +363,8 @@
 
 .footer-legal a:hover {
     color: var(--color-primary);
-}
-
-/* ===== Time Slot Cards ===== */
+} /* ===== Time Slot Cards ===== */
+/* Styling for time slots container */
 .time-slots {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -374,42 +373,72 @@
 
 .time-slot {
     padding: var(--space-md);
-    border: 2px solid var(--color-gray-300);
+    border: 2px solid var(--color-gray-300); /* default border */
     border-radius: var(--radius-lg);
     text-align: center;
     cursor: pointer;
     transition: var(--transition-base);
 }
 
-.time-slot:hover:not(.booked) {
-    border-color: var(--color-primary);
+.time-slot:hover:not(.booked):not(.past) {
+    border-color: var(
+        --color-primary-blue
+    ); /* Hover color for available slots */
     background: rgba(29, 185, 84, 0.05);
 }
 
 .time-slot.selected {
-    border-color: var(--color-primary);
+    border-color: var(
+        --color-primary-blue
+    ) !important; /* Force border for selected slot */
     background: rgba(29, 185, 84, 0.1);
+    transition: border-color 0.3s ease, background 0.3s ease; /* Smooth transition */
 }
 
+.time-slot:not(.booked) {
+    border-color: var(--color-primary); /* Border for available time slots */
+}
+
+/* Styling for booked slots */
 .time-slot.booked {
-    background: var(--color-gray-100);
+    background: var(--color-gray-300);
     cursor: not-allowed;
     opacity: 0.6;
-}
-
-.time-slot .time {
-    font-weight: 600;
-    font-size: var(--text-lg);
-    margin-bottom: 4px;
-}
-
-.time-slot .price {
-    color: var(--color-primary);
-    font-weight: 600;
+    border-color: var(--color-gray-500); /* Same border color as booked */
 }
 
 .time-slot.booked .price {
     color: var(--color-gray-600);
+}
+
+.time-slot.booked .time {
+    color: #ef4444; /* Red for booked slots */
+}
+
+/* Styling for past slots */
+.time-slot.past {
+    background: var(--color-gray-300); /* Same background as booked slots */
+    cursor: not-allowed;
+    opacity: 0.6;
+    border-color: var(--color-gray-500); /* Same border as booked slots */
+}
+
+.time-slot.past .price {
+    color: var(--color-gray-600);
+}
+
+.time-slot.past .time {
+    color: #ef4444; /* Same color as booked time */
+}
+
+/* Disable hover effect for past slots */
+.time-slot.past:hover {
+    background: var(--color-gray-300); /* No hover effect */
+}
+
+/* Hover effect for available slots */
+.time-slot:not(.booked):not(.past):hover {
+    background: rgba(29, 185, 84, 0.05);
 }
 
 /* ===== Countdown Timer ===== */

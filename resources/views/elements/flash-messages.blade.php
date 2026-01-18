@@ -1,71 +1,259 @@
-<div class="space-y-1 mb-6">
+{{-- Flash Messages dengan Inline CSS --}}
+<div style="margin-bottom: 24px;">
 
     {{-- Success --}}
     @if (session('success'))
-    <div
-        x-data="{ open: true, init() { setTimeout(() => this.open = false, 60000) } }"
-        x-init="init()"
-        x-show="open"
-        x-transition
-        class="flex items-start justify-between
-       w-full sm:w-96 md:w-[480px]
-       rounded-md border-l-4 border-green-500
-       bg-green-50 p-4 text-green-700 shadow-lg mb-4">
-        <div class="flex-1 text-sm">
+    <div id="successAlert" style="
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        width: 100%;
+        max-width: 480px;
+        border-radius: 6px;
+        border-left: 4px solid #10b981;
+        background-color: #f0fdf4;
+        padding: 16px;
+        color: #15803d;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        margin-bottom: 16px;
+        animation: slideIn 0.3s ease-out;
+    ">
+        <div style="flex: 1; font-size: 14px; line-height: 1.5;">
+            <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
             {{ session('success') }}
         </div>
         <button
-            @click="open = false"
-            class="ml-4 text-green-700 hover:text-green-900">
+            onclick="closeAlert('successAlert')"
+            style="
+                margin-left: 16px;
+                background: none;
+                border: none;
+                color: #15803d;
+                cursor: pointer;
+                font-size: 16px;
+                padding: 0;
+                transition: color 0.2s;
+            "
+            onmouseover="this.style.color='#166534'"
+            onmouseout="this.style.color='#15803d'">
             <i class="fas fa-times"></i>
         </button>
     </div>
     @endif
 
-    {{-- Error --}}
+    {{-- Error (Multiple) --}}
     @if ($errors->any())
-    <div
-        x-data="{ open: true, init() { setTimeout(() => this.open = false, 60000) } }"
-        x-init="init()"
-        x-show="open"
-        x-transition
-        class="flex items-start justify-between
-       w-full sm:w-96 md:w-[480px]
-       rounded-md border-l-4 border-green-500
-       bg-green-50 p-4 text-green-700 shadow-lg mb-4">
-        <div class="flex justify-between items-start text-sm mb-2">
-            <span>Terjadi beberapa kesalahan:</span>
+    <div id="errorAlert" style="
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-width: 480px;
+        border-radius: 6px;
+        border-left: 4px solid #ef4444;
+        background-color: #fef2f2;
+        padding: 16px;
+        color: #991b1b;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        margin-bottom: 16px;
+        animation: slideIn 0.3s ease-out;
+    ">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+            <span style="font-size: 14px; font-weight: 600;">
+                <i class="fas fa-exclamation-circle" style="margin-right: 8px;"></i>
+                Terjadi beberapa kesalahan:
+            </span>
             <button
-                @click="open = false"
-                class="text-red-700 hover:text-red-900">
+                onclick="closeAlert('errorAlert')"
+                style="
+                    background: none;
+                    border: none;
+                    color: #991b1b;
+                    cursor: pointer;
+                    font-size: 16px;
+                    padding: 0;
+                    transition: color 0.2s;
+                "
+                onmouseover="this.style.color='#7f1d1d'"
+                onmouseout="this.style.color='#991b1b'">
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <ul class="list-disc list-inside text-sm">
+        <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.6;">
             @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
+            <li style="margin-bottom: 4px;">{{ $error }}</li>
             @endforeach
         </ul>
     </div>
     @endif
 
-    {{-- Optional: Error session --}}
+    {{-- Error (Single) --}}
     @if (session('error'))
-    <div
-        x-data="{ open: true, init() { setTimeout(() => this.open = false, 60000) } }"
-        x-init="init()"
-        x-show="open"
-        x-transition
-        class="flex items-start justify-between w-80 max-w-full rounded-md border-l-4 border-red-500 bg-red-50 p-4 text-red-700 shadow-lg">
-        <div class="flex-1 text-sm">
+    <div id="singleErrorAlert" style="
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        width: 100%;
+        max-width: 480px;
+        border-radius: 6px;
+        border-left: 4px solid #ef4444;
+        background-color: #fef2f2;
+        padding: 16px;
+        color: #991b1b;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        margin-bottom: 16px;
+        animation: slideIn 0.3s ease-out;
+    ">
+        <div style="flex: 1; font-size: 14px; line-height: 1.5;">
+            <i class="fas fa-exclamation-circle" style="margin-right: 8px;"></i>
             {{ session('error') }}
         </div>
         <button
-            @click="open = false"
-            class="ml-4 text-red-700 hover:text-red-900">
+            onclick="closeAlert('singleErrorAlert')"
+            style="
+                margin-left: 16px;
+                background: none;
+                border: none;
+                color: #991b1b;
+                cursor: pointer;
+                font-size: 16px;
+                padding: 0;
+                transition: color 0.2s;
+            "
+            onmouseover="this.style.color='#7f1d1d'"
+            onmouseout="this.style.color='#991b1b'">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    @endif
+
+    {{-- Warning --}}
+    @if (session('warning'))
+    <div id="warningAlert" style="
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        width: 100%;
+        max-width: 480px;
+        border-radius: 6px;
+        border-left: 4px solid #f59e0b;
+        background-color: #fffbeb;
+        padding: 16px;
+        color: #92400e;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        margin-bottom: 16px;
+        animation: slideIn 0.3s ease-out;
+    ">
+        <div style="flex: 1; font-size: 14px; line-height: 1.5;">
+            <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>
+            {{ session('warning') }}
+        </div>
+        <button
+            onclick="closeAlert('warningAlert')"
+            style="
+                margin-left: 16px;
+                background: none;
+                border: none;
+                color: #92400e;
+                cursor: pointer;
+                font-size: 16px;
+                padding: 0;
+                transition: color 0.2s;
+            "
+            onmouseover="this.style.color='#78350f'"
+            onmouseout="this.style.color='#92400e'">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    @endif
+
+    {{-- Info --}}
+    @if (session('info'))
+    <div id="infoAlert" style="
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        width: 100%;
+        max-width: 480px;
+        border-radius: 6px;
+        border-left: 4px solid #3b82f6;
+        background-color: #eff6ff;
+        padding: 16px;
+        color: #1e40af;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        margin-bottom: 16px;
+        animation: slideIn 0.3s ease-out;
+    ">
+        <div style="flex: 1; font-size: 14px; line-height: 1.5;">
+            <i class="fas fa-info-circle" style="margin-right: 8px;"></i>
+            {{ session('info') }}
+        </div>
+        <button
+            onclick="closeAlert('infoAlert')"
+            style="
+                margin-left: 16px;
+                background: none;
+                border: none;
+                color: #1e40af;
+                cursor: pointer;
+                font-size: 16px;
+                padding: 0;
+                transition: color 0.2s;
+            "
+            onmouseover="this.style.color='#1e3a8a'"
+            onmouseout="this.style.color='#1e40af'">
             <i class="fas fa-times"></i>
         </button>
     </div>
     @endif
 
 </div>
+
+{{-- Keyframe Animation & JavaScript --}}
+<style>
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideOut {
+        from {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        to {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+    }
+</style>
+
+<script>
+    // Auto close alerts after 60 seconds
+    setTimeout(function() {
+        ['successAlert', 'errorAlert', 'singleErrorAlert', 'warningAlert', 'infoAlert'].forEach(function(id) {
+            var alert = document.getElementById(id);
+            if (alert) {
+                closeAlert(id);
+            }
+        });
+    }, 60000);
+
+    // Close alert function with animation
+    function closeAlert(id) {
+        var alert = document.getElementById(id);
+        if (alert) {
+            alert.style.animation = 'slideOut 0.3s ease-out';
+            setTimeout(function() {
+                alert.style.display = 'none';
+            }, 300);
+        }
+    }
+</script>

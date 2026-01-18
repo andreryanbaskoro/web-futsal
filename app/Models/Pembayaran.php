@@ -47,8 +47,9 @@ class Pembayaran extends Model
     // Pembayaran milik satu pemesanan
     public function pemesanan()
     {
-        return $this->belongsTo(Pemesanan::class, 'id_pemesanan', 'id_pemesanan');
+        return $this->belongsTo(Pemesanan::class, 'id_pemesanan');
     }
+
 
     /* =======================
      * HELPER STATUS

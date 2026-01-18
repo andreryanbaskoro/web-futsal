@@ -9,17 +9,14 @@ class JamOperasional extends Model
 {
     use HasFactory;
 
-    // 🔹 Nama tabel
     protected $table = 'jam_operasional';
 
-    // 🔹 Primary key
     protected $primaryKey = 'id_operasional';
 
-    // Primary key string, bukan auto-increment
-    public $incrementing = false;
-    protected $keyType = 'string';
+    // karena BIGINT AUTO_INCREMENT
+    public $incrementing = true;
+    protected $keyType = 'int';
 
-    // 🔹 Kolom yang boleh diisi
     protected $fillable = [
         'id_lapangan',
         'hari',
@@ -29,7 +26,6 @@ class JamOperasional extends Model
         'harga',
     ];
 
-    // 🔹 Timestamp aktif
     public $timestamps = true;
 
     /* =======================
@@ -37,29 +33,26 @@ class JamOperasional extends Model
      * =======================
      */
 
-    // 1 jam_operasional milik 1 lapangan
     public function lapangan()
     {
         return $this->belongsTo(Lapangan::class, 'id_lapangan', 'id_lapangan');
     }
 
     /* =======================
-     * SCOPES (opsional)
+     * SCOPES
      * =======================
      */
 
-    // Ambil jadwal operasional untuk hari tertentu
     public function scopeHari($query, $hari)
     {
         return $query->where('hari', strtolower($hari));
     }
 
     /* =======================
-     * FUNGSI BANTUAN
+     * HELPER
      * =======================
      */
 
-    // Hitung jumlah slot berdasarkan interval menit
     public function hitungSlot()
     {
         $jamBuka = strtotime($this->jam_buka);
@@ -67,25 +60,5 @@ class JamOperasional extends Model
         $intervalDetik = $this->interval_menit * 60;
 
         return floor(($jamTutup - $jamBuka) / $intervalDetik);
-    }
-
-    /* =======================
-     * EVENT MODEL
-     * =======================
-     */
-
-    // Generate ID otomatis saat create
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($operasional) {
-            if (empty($operasional->id_operasional)) {
-                // Format: LPG-01-SENIN
-                $lapanganCode = $operasional->id_lapangan ?? 'LPG-00';
-                $hariUpper = strtoupper(substr($operasional->hari, 0, 6)); // SENIN, SELASA, dll
-                $operasional->id_operasional = $lapanganCode . '-' . $hariUpper;
-            }
-        });
     }
 }

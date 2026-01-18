@@ -9,16 +9,12 @@ class PemesananJadwal extends Model
 {
     use HasFactory;
 
-    // Nama tabel
     protected $table = 'pemesanan_jadwal';
-
-    // Primary key
     protected $primaryKey = 'id_pemesanan_jadwal';
 
     public $incrementing = true;
     protected $keyType = 'int';
 
-    // Kolom yang bisa diisi
     protected $fillable = [
         'id_pemesanan',
         'id_jadwal',
@@ -32,27 +28,13 @@ class PemesananJadwal extends Model
      * RELASI
      * ======================= */
 
-    /**
-     * Relasi ke Pemesanan
-     */
     public function pemesanan()
     {
-        return $this->belongsTo(
-            Pemesanan::class,
-            'id_pemesanan',
-            'id_pemesanan'
-        );
+        return $this->belongsTo(Pemesanan::class, 'id_pemesanan', 'id_pemesanan');
     }
 
-    /**
-     * Relasi ke Jadwal
-     */
     public function jadwal()
     {
-        return $this->belongsTo(
-            Jadwal::class,
-            'id_jadwal',
-            'id_jadwal'
-        );
+        return $this->belongsTo(Jadwal::class, 'id_jadwal');
     }
 }

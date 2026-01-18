@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Password;
 
 class ForgotPasswordController extends Controller
 {
+    /**
+     * Menampilkan halaman reset password
+     */
     public function show()
     {
         return view('auth.forgot-password', [
@@ -15,17 +18,22 @@ class ForgotPasswordController extends Controller
         ]);
     }
 
-
+    /**
+     * Mengirimkan link untuk reset password
+     */
     public function send(Request $request)
     {
+        // Validasi email yang dikirim
         $request->validate([
             'email' => 'required|email',
         ]);
 
+        // Mengirimkan link reset password
         $status = Password::sendResetLink(
             $request->only('email')
         );
 
+        // Mengembalikan response sesuai dengan status pengiriman
         return $status === Password::RESET_LINK_SENT
             ? back()->with('status', __($status))
             : back()->withErrors(['email' => __($status)]);

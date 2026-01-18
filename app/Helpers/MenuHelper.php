@@ -17,10 +17,7 @@ class MenuHelper
             ['icon' => 'fa-solid fa-calendar', 'name' => 'Data Jadwal', 'path' => '/admin/jadwal'],
             ['icon' => 'fa-solid fa-file-invoice', 'name' => 'Data Pemesanan', 'path' => '/admin/pemesanan'],
             ['icon' => 'fa-solid fa-money-check-dollar', 'name' => 'Data Pembayaran', 'path' => '/admin/pembayaran'],
-            ['icon' => 'fa-solid fa-circle-check', 'name' => 'Verifikasi Pemesanan', 'path' => '/admin/verifikasi'],
-            ['icon' => 'fa-solid fa-chart-line', 'name' => 'Laporan', 'path' => '/admin/laporan'],
             ['icon' => 'fa-solid fa-users', 'name' => 'Manajemen User', 'path' => '/admin/users'],
-            ['icon' => 'fa-solid fa-right-from-bracket', 'name' => 'Logout', 'path' => '/logout'],
         ];
     }
 
@@ -90,23 +87,23 @@ class MenuHelper
         };
     }
 
-    /* =====================================================
-     | OTHERS
-     ===================================================== */
+    // /* =====================================================
+    //  | OTHERS
+    //  ===================================================== */
 
-    public static function getOthersItems(): array
-    {
-        return [
-            [
-                'icon' => 'fa-solid fa-chart-column',
-                'name' => 'Charts',
-                'subItems' => [
-                    ['name' => 'Line Chart', 'path' => '/line-chart', 'pro' => false],
-                    ['name' => 'Bar Chart', 'path' => '/bar-chart', 'pro' => false],
-                ],
-            ],
-        ];
-    }
+    // public static function getOthersItems(): array
+    // {
+    //     return [
+    //         [
+    //             'icon' => 'fa-solid fa-chart-column',
+    //             'name' => 'Charts',
+    //             'subItems' => [
+    //                 ['name' => 'Line Chart', 'path' => '/line-chart', 'pro' => false],
+    //                 ['name' => 'Bar Chart', 'path' => '/bar-chart', 'pro' => false],
+    //             ],
+    //         ],
+    //     ];
+    // }
 
     public static function getMenuGroups(): array
     {
@@ -115,10 +112,10 @@ class MenuHelper
                 'title' => 'Main Menu',
                 'items' => self::getMainNavItems(),
             ],
-            [
-                'title' => 'Others',
-                'items' => self::getOthersItems(),
-            ],
+            // [
+            //     'title' => 'Others',
+            //     'items' => self::getOthersItems(),
+            // ],
         ];
     }
 

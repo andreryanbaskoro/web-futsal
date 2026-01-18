@@ -23,11 +23,14 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $credentials = $request->validate([
+        // Validasi email dan password
+        $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
 
+        // Cek apakah email dan password cocok
+        $credentials = $request->only('email', 'password');
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate(); // Regenerasi session untuk keamanan
 
@@ -35,9 +38,20 @@ class AuthController extends Controller
             return $this->redirectByRole(Auth::user());
         }
 
-        return back()->withErrors([
-            'email' => 'Email atau password salah'
-        ]);
+        // Cek jika email tidak valid atau password salah
+        $errors = [];
+        // Cek jika email tidak terdaftar
+        if (!\App\Models\Pengguna::where('email', $request->email)->exists()) {
+            $errors['email'] = 'Email tidak terdaftar.';
+        }
+
+        // Cek jika password salah
+        if (\App\Models\Pengguna::where('email', $request->email)->exists()) {
+            $errors['password'] = 'Password yang Anda masukkan salah.';
+        }
+
+        // Menampilkan pesan error jika ada
+        return back()->withErrors($errors);
     }
 
 
@@ -46,21 +60,20 @@ class AuthController extends Controller
      */
     public function redirectByRole($user)
     {
-        \Log::info('Redirecting user with role: ' . $user->role);
+        \Log::info('Redirecting user with role: ' . $user->peran);
 
-        
-        switch ($user->role) {
+
+        switch ($user->peran) {
             case 'admin':
                 \Log::info('Redirecting to admin dashboard');
                 return redirect()->route('admin.dashboard');
             case 'owner':
                 return redirect()->route('owner.dashboard');
             case 'pelanggan':
-                return redirect()->route('pelanggan.dashboard');
+                return redirect()->route('pelanggan.beranda');
             default:
                 return redirect()->route('login');
         }
-        
     }
 
 

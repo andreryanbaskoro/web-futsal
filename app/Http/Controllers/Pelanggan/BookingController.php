@@ -9,11 +9,12 @@ use App\Models\Jadwal;
 use App\Models\PemesananJadwal;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class BookingController extends Controller
 {
     /**
-     * Buat pemesanan baru (dipanggil via POST)
+     * Buat pemesanan baru
      */
     public function store(Request $request)
     {
@@ -23,52 +24,54 @@ class BookingController extends Controller
 
         try {
             $pemesanan = DB::transaction(function () use ($request) {
-                // Ambil jadwal & lapangan
+
+                // 1️⃣ Lock jadwal rows
                 $jadwals = Jadwal::with('lapangan')
                     ->whereIn('id_jadwal', $request->jadwal_ids)
                     ->lockForUpdate()
                     ->get();
 
-                if ($jadwals->isEmpty()) {
-                    abort(400, 'Slot tidak valid');
+                if ($jadwals->count() !== count($request->jadwal_ids)) {
+                    abort(404, 'Sebagian jadwal tidak ditemukan');
+                }
+
+                // 2️⃣ CEK: apakah ada yang sudah dipesan
+                $alreadyBooked = PemesananJadwal::whereIn('id_jadwal', $request->jadwal_ids)
+                    ->exists();
+
+                if ($alreadyBooked) {
+                    abort(409, 'Sebagian slot sudah dipesan');
                 }
 
                 $lapangan = $jadwals->first()->lapangan;
 
-                // Gunakan tanggal jadwal pertama untuk ID pemesanan
-                $jadwalTanggal = Carbon::parse($jadwals->first()->tanggal)->format('Ymd');
+                // generate kode_pemesanan unik
+                $kode = null;
+                do {
+                    $kode = 'PM' . Str::upper(Str::random(8)); // contoh: PMA1B2C3D
+                } while (Pemesanan::where('kode_pemesanan', $kode)->exists());
 
-                // Cari booking terakhir di tanggal itu
-                $last = Pemesanan::where('id_pemesanan', 'like', "FTS-{$jadwalTanggal}-%")
-                    ->orderBy('id_pemesanan', 'desc')
-                    ->first();
-
-                $lastSeq = 0;
-                if ($last) {
-                    $lastSeq = (int) substr($last->id_pemesanan, -3);
-                }
-                $sequence = str_pad($lastSeq + 1, 3, '0', STR_PAD_LEFT);
-
-                $idPemesanan = "FTS-{$jadwalTanggal}-{$sequence}";
-
-                // Buat pemesanan
+                // 3️⃣ Buat pemesanan (sertakan kode_pemesanan)
                 $pemesanan = Pemesanan::create([
-                    'id_pemesanan'      => $idPemesanan,
-                    'kode_pemesanan'    => $idPemesanan,
-                    'id_pengguna'       => auth()->id() ?? 1,
-                    'id_lapangan'       => $lapangan->id_lapangan,
-                    'id_jadwal'         => $jadwals->first()->id_jadwal,
-                    'total_bayar'       => 0,
-                    'status_pemesanan'  => 'pending',
-                    'expired_at'        => now()->addMinutes(30),
+                    'id_pengguna'      => auth()->id(),
+                    'id_lapangan'      => $lapangan->id_lapangan,
+                    'kode_pemesanan'   => $kode,
+                    'total_bayar'      => 0,
+                    'status_pemesanan' => Pemesanan::PENDING,
+                    'expired_at'       => now()->addMinutes(30),
                 ]);
 
-                // Buat detail jadwal
+                // 4️⃣ Simpan detail jadwal
+                $total = 0;
+
                 foreach ($jadwals as $jadwal) {
+
                     $durasiMenit = Carbon::parse($jadwal->jam_mulai)
                         ->diffInMinutes(Carbon::parse($jadwal->jam_selesai));
 
-                    $hari = strtolower(Carbon::parse($jadwal->tanggal)->translatedFormat('l'));
+                    $hari = strtolower(
+                        Carbon::parse($jadwal->tanggal)->translatedFormat('l')
+                    );
 
                     $hargaPerJam = DB::table('jam_operasional')
                         ->where('id_lapangan', $jadwal->id_lapangan)
@@ -83,152 +86,116 @@ class BookingController extends Controller
                         'harga'        => (int) $hargaSlot,
                         'durasi_menit' => $durasiMenit,
                     ]);
+
+                    $total += (int) $hargaSlot;
                 }
 
-                // Hitung total bayar
-                $total = PemesananJadwal::where('id_pemesanan', $pemesanan->id_pemesanan)
-                    ->sum('harga');
-
-                $pemesanan->update(['total_bayar' => $total]);
+                // 5️⃣ Update total bayar
+                $pemesanan->update([
+                    'total_bayar' => $total
+                ]);
 
                 return $pemesanan;
             });
 
-            // Kembalikan kode pemesanan untuk redirect JS
+            // kembalikan 201 dengan kode yang valid
             return response()->json([
                 'kode' => $pemesanan->kode_pemesanan
-            ]);
+            ], 201);
         } catch (\Throwable $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            // supaya mudah debugging, tetap kembalikan pesan error (atau logkan terlebih dahulu di production)
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
+
     /**
-     * Tampilkan halaman konfirmasi booking
+     * Halaman konfirmasi booking
      */
     public function bookingConfirm(string $kode)
     {
         $pemesanan = Pemesanan::where('kode_pemesanan', $kode)
-            ->where('status_pemesanan', 'pending')
+            ->where('id_pengguna', auth()->id())
+            ->where('status_pemesanan', Pemesanan::PENDING)
+            ->where('expired_at', '>', now())
             ->firstOrFail();
 
-        // Ambil PemesananJadwal dengan relasi jadwal & lapangan
-        $jadwals = PemesananJadwal::with('jadwal.lapangan')
-            ->where('id_pemesanan', $pemesanan->id_pemesanan)
-            ->get();
-
-        // Simpan lapangan & tanggal
-        $lapangan = $jadwals->first()->jadwal->lapangan ?? null;
-        $tanggal = Carbon::parse($jadwals->first()->jadwal->tanggal)->translatedFormat('l, d F Y');
-
-        // Urutkan slot berdasarkan jam_mulai
-        $slots = $jadwals->sortBy('jadwal.jam_mulai');
-
-        // Gabungkan slot berurutan
-        $mergedSlots = [];
-        $current = null;
-        foreach ($slots as $s) {
-            $jamMulai = $s->jadwal->jam_mulai;
-            $jamSelesai = $s->jadwal->jam_selesai;
-
-            if (!$current) {
-                $current = [
-                    'start' => $jamMulai,
-                    'end' => $jamSelesai,
-                    'durasi_menit' => $s->durasi_menit,
-                ];
-            } else {
-                if ($jamMulai === $current['end']) {
-                    // Berurutan → gabungkan
-                    $current['end'] = $jamSelesai;
-                    $current['durasi_menit'] += $s->durasi_menit;
-                } else {
-                    // Tidak berurutan → simpan current dan mulai baru
-                    $mergedSlots[] = $current;
-                    $current = [
-                        'start' => $jamMulai,
-                        'end' => $jamSelesai,
-                        'durasi_menit' => $s->durasi_menit,
-                    ];
-                }
-            }
-        }
-        if ($current) $mergedSlots[] = $current;
-
-        $total = $pemesanan->total_bayar;
-
-        return view('pelanggan.booking-confirm', compact(
-            'pemesanan',
-            'mergedSlots', // gunakan ini di Blade
-            'total',
-            'lapangan',
-            'tanggal'
-        ));
-    }
-
-
-
-    /**
-     * Halaman pembayaran
-     */
-    public function payment($kode)
-    {
-        $pemesanan = Pemesanan::where('kode_pemesanan', $kode)
-            ->where('status_pemesanan', 'pending')
-            ->firstOrFail();
 
         $jadwals = PemesananJadwal::with('jadwal.lapangan')
             ->where('id_pemesanan', $pemesanan->id_pemesanan)
             ->get();
 
         $lapangan = $jadwals->first()->jadwal->lapangan ?? null;
-        $tanggal = Carbon::parse($jadwals->first()->jadwal->tanggal)->translatedFormat('l, d F Y');
+        $tanggal  = Carbon::parse(
+            $jadwals->first()->jadwal->tanggal
+        )->translatedFormat('l, d F Y');
 
-        // Gabungkan slot berurutan seperti di bookingConfirm
+
+        /** Merge slot berurutan + hitung durasi aman */
         $slots = $jadwals->sortBy('jadwal.jam_mulai');
         $mergedSlots = [];
         $current = null;
+
         foreach ($slots as $s) {
-            $jamMulai = $s->jadwal->jam_mulai;
-            $jamSelesai = $s->jadwal->jam_selesai;
+            $tanggal = $s->jadwal->tanggal;
+
+            $start = Carbon::parse($tanggal . ' ' . $s->jadwal->jam_mulai);
+            $end   = Carbon::parse($tanggal . ' ' . $s->jadwal->jam_selesai);
+
+            // 🔥 Jika jam selesai < jam mulai → lewat tengah malam
+            if ($end->lessThanOrEqualTo($start)) {
+                $end->addDay();
+            }
+
+            $durasi = $start->diffInMinutes($end);
 
             if (!$current) {
                 $current = [
-                    'start' => $jamMulai,
-                    'end' => $jamSelesai,
-                    'durasi_menit' => $s->durasi_menit,
+                    'start' => $start,
+                    'end'   => $end,
+                    'durasi_menit' => $durasi,
                 ];
+            } elseif ($start->equalTo($current['end'])) {
+                $current['end'] = $end;
+                $current['durasi_menit'] += $durasi;
             } else {
-                if ($jamMulai === $current['end']) {
-                    $current['end'] = $jamSelesai;
-                    $current['durasi_menit'] += $s->durasi_menit;
-                } else {
-                    $mergedSlots[] = $current;
-                    $current = [
-                        'start' => $jamMulai,
-                        'end' => $jamSelesai,
-                        'durasi_menit' => $s->durasi_menit,
-                    ];
-                }
+                $mergedSlots[] = $current;
+                $current = [
+                    'start' => $start,
+                    'end'   => $end,
+                    'durasi_menit' => $durasi,
+                ];
             }
         }
-        if ($current) $mergedSlots[] = $current;
 
-        return view('pelanggan.pembayaran', compact(
-            'pemesanan',
-            'mergedSlots',
-            'lapangan',
-            'tanggal'
-        ));
+        if ($current) {
+            $mergedSlots[] = $current;
+        }
+
+
+        return view('pelanggan.booking-confirm', [
+            'pemesanan'   => $pemesanan,
+            'mergedSlots' => $mergedSlots,
+            'total'       => $pemesanan->total_bayar,
+            'lapangan'    => $lapangan,
+            'tanggal'     => $tanggal,
+        ]);
     }
 
-
     /**
-     * Riwayat booking
+     * Riwayat booking user
      */
     public function bookingHistory()
     {
-        $bookings = Pemesanan::orderBy('created_at', 'desc')->get();
+        $bookings = Pemesanan::with([
+            'detailJadwal.jadwal.lapangan'
+        ])
+            ->where('id_pengguna', auth()->id())
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return view('pelanggan.booking-history', compact('bookings'));
     }
 }

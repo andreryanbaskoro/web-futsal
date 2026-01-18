@@ -1,44 +1,45 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
+<html lang="id">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Booking lapangan futsal online lebih mudah dan cepat. Fasilitas premium, booking 24/7, pembayaran digital. FUSTAL ACR - Pilih, Booking, Main!">
+    <meta name="keywords" content="futsal, booking lapangan, sewa lapangan futsal, FUSTAL ACR, booking online">
+    <title>@yield('title', 'Futsal ACR')</title> <!-- Default title jika tidak ada section title -->
 
-    <title>{{ $title ?? 'Auth' }} | Futsal</title>
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    {{-- CSS --}}
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽</text></svg>">
 
-    <!-- Font Awesome -->
-    <script src="https://kit.fontawesome.com/8ba56f53d6.js" crossorigin="anonymous"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Dark mode init (tanpa sidebar store) -->
-    <script>
-        (function() {
-            const savedTheme = localStorage.getItem('theme');
-            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-            const theme = savedTheme || systemTheme;
-            if (theme === 'dark') {
-                document.documentElement.classList.add('dark');
-                document.body.classList.add('dark', 'bg-gray-900');
-            }
-        })();
-    </script>
+
+    {{-- Font Awesome --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/components.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/sections.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
+
+    @stack('styles')
 </head>
 
-<body class="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+<body>
 
-    <div class="w-full max-w-md p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
-        {{-- Logo --}}
-        <div class="text-center mb-6">
-            <img src="/images/logo/logo.svg" class="mx-auto h-10 dark:hidden">
-            <img src="/images/logo/logo-dark.svg" class="mx-auto h-10 hidden dark:block">
-        </div>
 
-        {{-- Content --}}
-        @yield('content')
-    </div>
+    {{-- PAGE CONTENT --}}
+    @yield('content')
+
+
+    @stack('scripts')
+
+    <script src="{{ asset('js/main.js') }}"></script>
 
 </body>
 

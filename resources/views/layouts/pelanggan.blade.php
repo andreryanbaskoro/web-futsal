@@ -6,12 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Booking lapangan futsal online lebih mudah dan cepat. Fasilitas premium, booking 24/7, pembayaran digital. FUSTAL ACR - Pilih, Booking, Main!">
     <meta name="keywords" content="futsal, booking lapangan, sewa lapangan futsal, FUSTAL ACR, booking online">
-    <title>FUSTAL ACR - Booking Lapangan Futsal Online</title>
-
-
-    <!-- Scripts -->
-    <!-- @vite(['resources/css/app.css', 'resources/js/app.js']) -->
-
+    <title>@yield('title', 'FUSTAL ACR - Booking Lapangan Futsal Online')</title> <!-- Judul dinamis -->
 
     {{-- CSS --}}
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽</text></svg>">
@@ -31,10 +26,12 @@
     <link rel="stylesheet" href="{{ asset('css/sections.css') }}">
     <link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
 
-    @stack('styles')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
 
 <body>
+    @stack('styles')
 
     {{-- NAVBAR --}}
     @include('partials.pelanggan.navbar')
