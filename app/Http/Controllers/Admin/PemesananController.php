@@ -13,10 +13,29 @@ class PemesananController extends Controller
         $pemesanan = Pemesanan::with([
             'pengguna',
             'lapangan',
-            'detailJadwal.jadwal',  // Pastikan relasi 'jadwal' dipanggil di sini
-        ])
-            ->orderBy('created_at', 'desc')
-            ->get();
+            'detailJadwal'
+        ])->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($item) {
+                $jadwalText = [];
+                $jadwalRaw  = [];
+
+                foreach ($item->detailJadwal as $dj) {
+                    $tanggal = \Carbon\Carbon::parse($dj->tanggal)->format('d M Y');
+                    $jam     = substr($dj->jam_mulai, 0, 5) . ' - ' . substr($dj->jam_selesai, 0, 5);
+
+                    $jadwalText[] = "$tanggal $jam";
+                    $jadwalRaw[] = [
+                        'tanggal' => $tanggal,
+                        'jam' => $jam
+                    ];
+                }
+
+                $item->detail_jadwal = implode(', ', $jadwalText); // untuk search & sort
+                $item->detail_jadwal_raw = $jadwalRaw; // untuk display
+
+                return $item;
+            });
 
         return view('admin.pemesanan.index', [
             'title' => 'Data Pemesanan',

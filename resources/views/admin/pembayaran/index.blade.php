@@ -3,129 +3,186 @@
 @section('content')
 
 <div
-    class="space-y-4"
-    x-data="Table(@js($pembayaran))">
+    class="space-y-1"
+    x-data="Table(@js($pembayaran), {
+        perPage: 10,
+        searchKeys: [
+            'kode_pemesanan',
+            'nama_pengguna',
+            'status_transaksi',
+            'tipe_pembayaran',
+            'waktu_bayar',
+            'total_bayar'
+        ]
+    })">
 
     {{-- FLASH MESSAGE --}}
     @include('elements.flash-messages')
 
     {{-- CARD --}}
-    <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+    <div class="rounded-2xl border border-gray-200 bg-white pt-4 dark:border-gray-800 dark:bg-white/[0.03]">
 
         {{-- HEADER --}}
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+        <div class="flex flex-col gap-3 px-5 mb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <h3 class="text-xl font-semibold text-gray-800 dark:text-white/90">
                 Data Pembayaran
             </h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                Monitoring status pembayaran pemesanan lapangan
-            </p>
+
+            {{-- SEARCH --}}
+            <div class="relative">
+                <span class="absolute -translate-y-1/2 left-4 top-1/2">
+                    <i class="fas fa-search text-gray-400"></i>
+                </span>
+                <input
+                    type="text"
+                    x-model.debounce.300ms="search"
+                    placeholder="Cari..."
+                    class="h-[42px] w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pl-10 pr-4 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 sm:w-[260px]" />
+            </div>
         </div>
 
         {{-- TABLE --}}
-        <div class="overflow-x-auto px-6 py-4">
-            <table class="min-w-full text-sm">
-                <thead>
-                    <tr class="border-b border-gray-200 dark:border-gray-700">
-                        <th
-                            class="px-3 py-3 text-left text-gray-500 dark:text-gray-400 cursor-pointer"
-                            @click="sortBy('waktu_bayar')" data-sort="waktu_bayar">
-                            Tanggal Bayar
-                            <span x-show="sortKey === 'waktu_bayar'">
-                                <template x-if="sortAsc">▲</template>
-                                <template x-if="!sortAsc">▼</template>
-                            </span>
-                        </th>
-                        <th
-                            class="px-3 py-3 text-left text-gray-500 dark:text-gray-400 cursor-pointer"
-                            @click="sortBy('kode_pemesanan')" data-sort="kode_pemesanan">
-                            Kode Pemesanan
-                            <span x-show="sortKey === 'kode_pemesanan'">
-                                <template x-if="sortAsc">▲</template>
-                                <template x-if="!sortAsc">▼</template>
-                            </span>
-                        </th>
-                        <th
-                            class="px-3 py-3 text-left text-gray-500 dark:text-gray-400 cursor-pointer"
-                            @click="sortBy('pemesan')" data-sort="pemesan">
-                            Pemesan
-                        </th>
-                        <th
-                            class="px-3 py-3 text-left text-gray-500 dark:text-gray-400 cursor-pointer"
-                            @click="sortBy('total_bayar')" data-sort="total_bayar">
-                            Total Bayar
-                        </th>
-                        <th
-                            class="px-3 py-3 text-left text-gray-500 dark:text-gray-400">
-                            Status Transaksi
-                        </th>
-                        <th
-                            class="px-3 py-3 text-left text-gray-500 dark:text-gray-400">
-                            Tipe Pembayaran
-                        </th>
-                    </tr>
-                </thead>
-
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                    @forelse ($pembayaran as $item)
-                    <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02]">
-
-                        {{-- TANGGAL BAYAR --}}
-                        <td class="px-3 py-4 text-gray-700 dark:text-gray-200">
-                            {{ $item->waktu_bayar ? $item->waktu_bayar->format('d M Y H:i') : '-' }}
-                        </td>
-
-                        {{-- KODE PEMESANAN --}}
-                        <td class="px-3 py-4 font-medium text-gray-800 dark:text-white">
-                            {{ $item->pemesanan->kode_pemesanan ?? '-' }}
-                        </td>
-
-                        {{-- PEMESAN --}}
-                        <td class="px-3 py-4 text-gray-700 dark:text-gray-200">
-                            {{ $item->pemesanan->pengguna->nama ?? '-' }}
-                        </td>
-
-                        {{-- TOTAL BAYAR --}}
-                        <td class="px-3 py-4 text-gray-700 dark:text-gray-200">
-                            Rp {{ number_format($item->pemesanan->total_bayar ?? 0, 0, ',', '.') }}
-                        </td>
-
-                        {{-- STATUS TRANSAKSI --}}
-                        <td class="px-3 py-4">
+        <div class="overflow-hidden">
+            <div class="max-w-full px-5 overflow-x-auto">
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="border-y border-gray-200 dark:border-gray-700">
                             @php
-                            if ($item->isBerhasil()) {
-                            $statusClass = 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300';
-                            $statusText = 'Berhasil';
-                            } elseif ($item->isPending()) {
-                            $statusClass = 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300';
-                            $statusText = 'Pending';
-                            } elseif ($item->isGagal()) {
-                            $statusClass = 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300';
-                            $statusText = 'Gagal';
-                            } else {
-                            $statusClass = 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300';
-                            $statusText = $item->status_transaksi;
-                            }
+                            $columns = [
+                            ['label' => 'No', 'key' => null],
+                            ['label' => 'Kode Pemesanan', 'key' => 'kode_pemesanan'],
+                            ['label' => 'Pemesan', 'key' => 'nama_pengguna'],
+                            ['label' => 'Total Bayar', 'key' => 'total_bayar'],
+                            ['label' => 'Tanggal Bayar', 'key' => 'waktu_bayar'],
+                            ['label' => 'Status Transaksi', 'key' => 'status_transaksi'],
+                            ['label' => 'Tipe Pembayaran', 'key' => 'tipe_pembayaran'],
+                            ];
                             @endphp
-                            <span class="px-3 py-1 text-xs font-semibold rounded-full {{ $statusClass }}">
-                                {{ $statusText }}
-                            </span>
-                        </td>
 
-                        {{-- TIPE PEMBAYARAN --}}
-                        <td class="px-3 py-4 text-gray-700 dark:text-gray-200">
-                            {{ ucfirst($item->tipe_pembayaran) ?? '-' }}
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="6" class="py-6 text-center text-gray-500 dark:text-gray-400">
-                            Data pembayaran belum tersedia
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                            @foreach($columns as $col)
+                            <th
+                                class="px-4 py-3 text-sm text-gray-500 text-left {{ $col['key'] ? 'cursor-pointer select-none' : '' }}"
+                                @if($col['key'])
+                                @click="sortBy('{{ $col['key'] }}')"
+                                data-sort="{{ $col['key'] }}"
+                                @endif>
+                                {{ $col['label'] }}
+                            </th>
+                            @endforeach
+
+                        </tr>
+                    </thead>
+
+
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+
+                        <template x-for="(item, index) in paginated" :key="item.id_pemesanan">
+                            <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02]">
+
+                                {{-- NO --}}
+                                <td class="px-4 py-4 text-sm text-gray-500"
+                                    x-text="(currentPage - 1) * perPage + index + 1">
+                                </td>
+
+                                {{-- KODE --}}
+                                <td class="px-4 py-4 text-sm font-medium text-gray-800 dark:text-white"
+                                    x-text="item.kode_pemesanan">
+                                </td>
+
+                                {{-- PEMESAN --}}
+                                <td class="px-4 py-4 text-sm text-gray-600"
+                                    x-text="item.nama_pengguna ?? '-'">
+                                </td>
+
+                                {{-- TOTAL --}}
+                                <td class="px-4 py-4 text-sm text-gray-600"
+                                    x-text="`Rp ${Number(item.total_bayar).toLocaleString('id-ID')}`">
+                                </td>
+
+                                {{-- TANGGAL BAYAR --}}
+                                <td class="px-4 py-4 text-sm text-gray-600">
+                                    <template x-if="item.waktu_bayar">
+                                        <span x-text="item.waktu_bayar"></span>
+                                    </template>
+                                    <template x-if="!item.waktu_bayar">
+                                        <span class="italic text-gray-400">-</span>
+                                    </template>
+                                </td>
+
+                                {{-- STATUS PEMESANAN --}}
+                                {{-- STATUS TRANSAKSI --}}
+                                <td class="px-4 py-4">
+                                    <span
+                                        class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+                                        :class="{
+            'bg-gray-100 text-gray-600': item.status_transaksi === 'belum_bayar',
+            'bg-yellow-50 text-yellow-600': item.status_transaksi === 'pending',
+            'bg-green-50 text-green-600': ['capture','settlement'].includes(item.status_transaksi),
+            'bg-red-50 text-red-600': ['deny','cancel','expire'].includes(item.status_transaksi)
+        }"
+                                        x-text="(() => {
+            const map = {
+                belum_bayar: 'Menunggu Pembayaran',
+                pending: 'Menunggu Pembayaran',
+                capture: 'Pembayaran Berhasil',
+                settlement: 'Pembayaran Berhasil',
+                deny: 'Pembayaran Ditolak',
+                cancel: 'Dibatalkan',
+                expire: 'Kedaluwarsa'
+            };
+            return map[item.status_transaksi] ?? item.status_transaksi;
+        })()">
+                                    </span>
+                                </td>
+
+
+                                {{-- TIPE PEMBAYARAN --}}
+                                <td class="px-4 py-4 text-sm text-gray-600"
+                                    x-text="item.tipe_pembayaran ?? '-'">
+                                </td>
+
+                            </tr>
+                        </template>
+
+                        <tr x-show="paginated.length === 0">
+                            <td colspan="9" class="px-4 py-6 text-center text-gray-500">
+                                Data pembayaran tidak ditemukan
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {{-- PAGINATION --}}
+        <div class="px-6 py-4 border-t border-gray-200 dark:border-white/[0.05]">
+            <div class="flex items-center justify-between">
+                <button @click="prev"
+                    :disabled="currentPage === 1"
+                    :class="currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''"
+                    class="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Prev
+                </button>
+
+                <ul class="flex items-center gap-1">
+                    <template x-for="page in displayedPages" :key="page">
+                        <li>
+                            <button x-show="page !== '...'" @click="goToPage(page)" x-text="page"
+                                :class="currentPage === page ? 'bg-blue-500 text-white' : 'text-gray-700 hover:bg-gray-100'"
+                                class="h-9 w-9 flex items-center justify-center rounded-lg text-sm font-medium"></button>
+                            <span x-show="page === '...'" class="h-9 w-9 flex items-center justify-center text-gray-400">…</span>
+                        </li>
+                    </template>
+                </ul>
+
+                <button @click="next"
+                    :disabled="currentPage === totalPages"
+                    :class="currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''"
+                    class="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Next
+                </button>
+            </div>
         </div>
 
     </div>
@@ -135,4 +192,8 @@
 
 @push('scripts')
 <script src="{{ asset('js/table.js') }}"></script>
+@endpush
+
+@push('modals')
+@include('elements.modal-hapus')
 @endpush

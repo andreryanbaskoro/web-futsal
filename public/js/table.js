@@ -20,6 +20,29 @@ window.Table = function(data, options = {}) {
             }, item) ?? "";
         },
 
+        // INIT: register watchers (Alpine.js)
+        init() {
+            // reset page saat search berubah
+            if (typeof this.$watch === 'function') {
+                this.$watch('search', (val) => {
+                    this.currentPage = 1;
+                });
+
+                // jika jumlah filtered berubah (mis. setelah search/sort), pastikan currentPage valid
+                this.$watch(() => this.filtered.length, () => {
+                    // jika currentPage melebihi totalPages, set ke halaman terakhir yang ada (atau 1)
+                    if (this.currentPage > this.totalPages) {
+                        this.currentPage = Math.max(1, this.totalPages);
+                    }
+                });
+
+                // jika rows (data sumber) berubah, reset ke page 1 supaya konsisten
+                this.$watch('rows', () => {
+                    this.currentPage = 1;
+                });
+            }
+        },
+
         // FILTERED + SEARCH + SORT
         get filtered() {
             let filteredRows = [...this.rows];
@@ -87,6 +110,9 @@ window.Table = function(data, options = {}) {
 
         // SORT HANDLER
         sortBy(column) {
+            // reset page saat sort berubah (lebih konsisten untuk user)
+            this.currentPage = 1;
+
             if (this.sortKey === column) this.sortOrder = this.sortOrder === "asc" ? "desc" : "asc";
             else { this.sortKey = column; this.sortOrder = "asc"; }
             this.updateSortingIcons();

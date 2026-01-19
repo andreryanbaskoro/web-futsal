@@ -6,8 +6,16 @@
     class="space-y-1"
     x-data="Table(@js($pemesanan), {
         perPage: 10,
-        searchKeys: ['kode_pemesanan', 'pengguna.nama', 'lapangan.nama_lapangan', 'jadwal', 'total_bayar', 'status_pemesanan']
+        searchKeys: [
+            'kode_pemesanan',
+            'pengguna.nama',
+            'lapangan.nama_lapangan',
+            'status_pemesanan',
+            'total_bayar',
+            'detail_jadwal'
+        ]
     })">
+
 
     {{-- FLASH MESSAGE --}}
     @include('elements.flash-messages')
@@ -42,77 +50,106 @@
                 <table class="min-w-full">
                     <thead>
                         <tr class="border-y border-gray-200 dark:border-gray-700">
-                            <th class="px-4 py-3 text-sm text-gray-500 text-left">Kode</th>
-                            <th class="px-4 py-3 text-sm text-gray-500 text-left">Pemesan</th>
-                            <th class="px-4 py-3 text-sm text-gray-500 text-left">Lapangan</th>
-                            <th class="px-4 py-3 text-sm text-gray-500 text-left">Jadwal</th>
-                            <th class="px-4 py-3 text-sm text-gray-500 text-left">Total</th>
-                            <th class="px-4 py-3 text-sm text-gray-500 text-left">Status</th>
+                            @php
+                            $columns = [
+                            ['label' => 'No', 'key' => null],
+                            ['label' => 'Kode', 'key' => 'kode_pemesanan'],
+                            ['label' => 'Pemesan', 'key' => 'pengguna.nama'],
+                            ['label' => 'Lapangan', 'key' => 'lapangan.nama_lapangan'],
+                            ['label' => 'Jadwal', 'key' => 'detail_jadwal'],
+                            ['label' => 'Total', 'key' => 'total_bayar'],
+                            ['label' => 'Status', 'key' => 'status_pemesanan'],
+                            ];
+                            @endphp
+
+                            @foreach($columns as $col)
+                            <th
+                                class="px-4 py-3 text-sm text-gray-500 text-left {{ $col['key'] ? 'cursor-pointer' : '' }}"
+                                @if($col['key'])
+                                @click="sortBy('{{ $col['key'] }}')"
+                                data-sort="{{ $col['key'] }}"
+                                @endif>
+                                {{ $col['label'] }}
+                            </th>
+                            @endforeach
+
                             <th class="px-4 py-3 text-sm text-gray-500 text-end">Aksi</th>
                         </tr>
                     </thead>
 
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                        @foreach ($pemesanan as $item)
-                        <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02]">
 
-                            {{-- KODE --}}
-                            <td class="px-4 py-4 text-sm text-gray-800 dark:text-white">
-                                {{ $item->kode_pemesanan }}
+                        <template x-for="(item, index) in paginated" :key="item.id_pemesanan">
+                            <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02]">
+
+                                {{-- NO --}}
+                                <td class="px-4 py-4 text-sm text-gray-500"
+                                    x-text="(currentPage - 1) * perPage + index + 1">
+                                </td>
+
+                                {{-- KODE --}}
+                                <td class="px-4 py-4 text-sm text-gray-800 dark:text-white"
+                                    x-text="item.kode_pemesanan">
+                                </td>
+
+                                {{-- PEMESAN --}}
+                                <td class="px-4 py-4 text-sm text-gray-600"
+                                    x-text="item.pengguna?.nama ?? '-'">
+                                </td>
+
+                                {{-- LAPANGAN --}}
+                                <td class="px-4 py-4 text-sm text-gray-600"
+                                    x-text="item.lapangan?.nama_lapangan ?? '-'">
+                                </td>
+
+                                {{-- JADWAL --}}
+                                <td class="px-4 py-4 text-sm text-gray-600">
+                                    <template x-for="(jadwal, idx) in item.detail_jadwal_raw" :key="idx">
+                                        <div class="text-xs">
+                                            <span x-text="jadwal.tanggal"></span> |
+                                            <span x-text="jadwal.jam"></span>
+                                        </div>
+                                    </template>
+                                </td>
+
+
+                                {{-- TOTAL --}}
+                                <td class="px-4 py-4 text-sm text-gray-600"
+                                    x-text="`Rp ${Number(item.total_bayar).toLocaleString('id-ID')}`">
+                                </td>
+
+                                {{-- STATUS --}}
+                                <td class="px-4 py-4">
+                                    <span
+                                        class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+                                        :class="{
+                'bg-green-50 text-green-600': item.status_pemesanan === 'dibayar',
+                'bg-yellow-50 text-yellow-600': item.status_pemesanan === 'pending',
+                'bg-red-50 text-red-600': ['dibatalkan','kadaluarsa'].includes(item.status_pemesanan)
+            }"
+                                        x-text="item.status_pemesanan">
+                                    </span>
+                                </td>
+
+                                {{-- AKSI --}}
+                                <td class="px-4 py-4 text-end">
+                                    <a :href="`/admin/pemesanan/${item.id_pemesanan}`"
+                                        class="text-blue-500 hover:text-blue-700">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+
+                            </tr>
+                        </template>
+
+                        <tr x-show="paginated.length === 0">
+                            <td colspan="8" class="px-4 py-6 text-center text-gray-500">
+                                Data pemesanan tidak ditemukan
                             </td>
-
-                            {{-- PEMESAN --}}
-                            <td class="px-4 py-4 text-sm text-gray-600">
-                                {{ $item->pengguna->nama }}
-                            </td>
-
-                            {{-- LAPANGAN --}}
-                            <td class="px-4 py-4 text-sm text-gray-600">
-                                {{ $item->lapangan->nama_lapangan }}
-                            </td>
-
-                            {{-- JADWAL --}}
-                            <td class="px-4 py-4 text-sm text-gray-600">
-                                @foreach ($item->detailJadwal as $dj)
-                                <div class="text-xs">
-                                    {{ \Carbon\Carbon::parse($dj->tanggal)->format('d M Y') }}
-                                    |
-                                    {{ substr($dj->jam_mulai, 0, 5) }} - {{ substr($dj->jam_selesai, 0, 5) }}
-                                </div>
-                                @endforeach
-                            </td>
-
-                            {{-- TOTAL --}}
-                            <td class="px-4 py-4 text-sm text-gray-600">
-                                Rp {{ number_format($item->total_bayar, 0, ',', '.') }}
-                            </td>
-
-                            {{-- STATUS --}}
-                            <td class="px-4 py-4">
-                                @php
-                                $statusClass = match($item->status_pemesanan) {
-                                'dibayar' => 'bg-green-50 text-green-600',
-                                'pending' => 'bg-yellow-50 text-yellow-600',
-                                'dibatalkan','kadaluarsa' => 'bg-red-50 text-red-600',
-                                default => 'bg-gray-100 text-gray-600'
-                                };
-                                @endphp
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ $statusClass }}">
-                                    {{ ucfirst($item->status_pemesanan) }}
-                                </span>
-                            </td>
-
-                            {{-- AKSI --}}
-                            <td class="px-4 py-4 text-end">
-                                <a href="{{ route('admin.pemesanan.show', $item->id_pemesanan) }}"
-                                    class="text-blue-500 hover:text-blue-700">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                            </td>
-
                         </tr>
-                        @endforeach
+
                     </tbody>
+
 
                 </table>
             </div>

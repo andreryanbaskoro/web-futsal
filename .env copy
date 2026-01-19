@@ -3,7 +3,8 @@ APP_ENV=local
 APP_KEY=base64:pieqy2pkmPvebo/cE3kuJ9ZNK11wExVF7fvpL0ttMiY=
 APP_DEBUG=true
 
-APP_URL=https://simplistic-uncontended-jene.ngrok-free.dev
+# APP_URL=https://simplistic-uncontended-jene.ngrok-free.dev
+APP_URL=http://localhost
 
 
 APP_LOCALE=id
