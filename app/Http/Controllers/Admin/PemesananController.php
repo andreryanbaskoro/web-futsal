@@ -10,8 +10,12 @@ class PemesananController extends Controller
 {
     public function index()
     {
-        $pemesanan = Pemesanan::with(['pengguna','lapangan','jadwal'])
-            ->orderBy('created_at','desc')
+        $pemesanan = Pemesanan::with([
+            'pengguna',
+            'lapangan',
+            'detailJadwal.jadwal',  // Pastikan relasi 'jadwal' dipanggil di sini
+        ])
+            ->orderBy('created_at', 'desc')
             ->get();
 
         return view('admin.pemesanan.index', [
@@ -20,30 +24,22 @@ class PemesananController extends Controller
         ]);
     }
 
+
+
     public function show($id)
     {
-        $pemesanan = Pemesanan::with(['pengguna','lapangan','jadwal','pembayaran'])
+        // Memuat detail pemesanan beserta pengguna, lapangan, detailJadwal (termasuk jadwal) dan pembayaran
+        $pemesanan = Pemesanan::with([
+            'pengguna',
+            'lapangan',
+            'detailJadwal.jadwal', // pastikan ini memanggil relasi jadwal dari PemesananJadwal
+            'pembayaran'
+        ])
             ->findOrFail($id);
 
         return view('admin.pemesanan.show', [
             'title' => 'Detail Pemesanan',
             'pemesanan' => $pemesanan,
         ]);
-    }
-
-    // Verifikasi / ubah status pemesanan (mis: dari pending -> dibayar)
-    public function verifikasi(Request $request, $id)
-    {
-        $p = Pemesanan::findOrFail($id);
-
-        $request->validate([
-            'status_pemesanan' => 'required|in:pending,dibayar,dibatalkan,kadaluarsa'
-        ]);
-
-        $p->status_pemesanan = $request->status_pemesanan;
-        $p->save();
-
-        return redirect()->route('admin.pemesanan.show', $id)
-            ->with('success', 'Status pemesanan berhasil diperbarui');
     }
 }

@@ -46,4 +46,9 @@ class PemesananJadwal extends Model
     {
         return $this->belongsTo(Jadwal::class, 'id_jadwal');
     }
+
+    public function pengguna()
+    {
+        return $this->belongsTo(Pengguna::class, 'id_pengguna', 'id_pengguna');
+    }
 }

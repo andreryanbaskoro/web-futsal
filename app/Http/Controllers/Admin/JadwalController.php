@@ -11,14 +11,17 @@ class JadwalController extends Controller
 {
     public function index()
     {
-        // Urut berdasarkan id_jadwal (string)
-        $jadwal = Jadwal::orderBy('id_jadwal', 'desc')->get();
+        $jadwal = Jadwal::with(['lapangan', 'pemesananJadwal.pemesanan.pengguna'])
+            ->orderBy('tanggal')
+            ->orderBy('jam_mulai')
+            ->get();
 
         return view('admin.jadwal.index', [
-            'title' => 'Data Jadwal',
+            'title' => 'Jadwal Lapangan',
             'jadwal' => $jadwal,
         ]);
     }
+
 
     public function create()
     {

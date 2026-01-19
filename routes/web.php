@@ -58,6 +58,7 @@ Route::get('/tentang', [LandingController::class, 'tentang'])->name('tentang');
 | ADMIN (WAJIB LOGIN)
 |--------------------------------------------------------------------------
 */
+
 use App\Http\Controllers\Admin\{
     DashboardController,
     LapanganController,
@@ -74,54 +75,50 @@ Route::middleware(['auth', 'role:admin'])
     ->name('admin.')
     ->group(function () {
 
-    // ================= DASHBOARD =================
-    Route::get('/dashboard', [DashboardController::class, 'index'])
-        ->name('dashboard');
+        // ================= DASHBOARD =================
+        Route::get('/dashboard', [DashboardController::class, 'index'])
+            ->name('dashboard');
 
-    // ================= MASTER DATA =================
-    Route::resource('lapangan', LapanganController::class);
-    Route::resource('jam-operasional', JamOperasionalController::class)
-        ->except(['show']);
+        // ================= MASTER DATA =================
+        Route::resource('lapangan', LapanganController::class);
+        Route::resource('jam-operasional', JamOperasionalController::class)
+            ->except(['show']);
 
-    // ================= JADWAL =================
-    Route::get('jadwal', [JadwalController::class, 'index'])
-        ->name('jadwal.index');
+        // ================= JADWAL =================
+        Route::get('jadwal', [JadwalController::class, 'index'])
+            ->name('jadwal.index');
 
-    Route::post('jadwal/generate', [JadwalController::class, 'generate'])
-        ->name('jadwal.generate');
+        Route::post('jadwal/generate', [JadwalController::class, 'generate'])
+            ->name('jadwal.generate');
 
-    Route::delete('jadwal/{jadwal}', [JadwalController::class, 'destroy'])
-        ->name('jadwal.destroy');
+        Route::delete('jadwal/{jadwal}', [JadwalController::class, 'destroy'])
+            ->name('jadwal.destroy');
 
-    // ================= PEMESANAN =================
-    Route::get('pemesanan', [PemesananController::class, 'index'])
-        ->name('pemesanan.index');
+        // ================= PEMESANAN =================
+        Route::get('pemesanan', [PemesananController::class, 'index'])
+            ->name('pemesanan.index');
 
-    Route::get('pemesanan/{pemesanan}', [PemesananController::class, 'show'])
-        ->name('pemesanan.show');
+        Route::get('pemesanan/{pemesanan}', [PemesananController::class, 'show'])
+            ->name('pemesanan.show');
 
-    Route::patch('pemesanan/{pemesanan}/verifikasi', 
-        [PemesananController::class, 'verifikasi'])
-        ->name('pemesanan.verifikasi');
+        // ================= PEMBAYARAN =================
+        Route::get('pembayaran', [PembayaranController::class, 'index'])
+            ->name('pembayaran.index');
 
-    // ================= PEMBAYARAN =================
-    Route::get('pembayaran', [PembayaranController::class, 'index'])
-        ->name('pembayaran.index');
+        Route::get('pembayaran/{pembayaran}', [PembayaranController::class, 'show'])
+            ->name('pembayaran.show');
 
-    Route::get('pembayaran/{pembayaran}', [PembayaranController::class, 'show'])
-        ->name('pembayaran.show');
+        // ================= LAPORAN =================
+        Route::get('laporan', [LaporanController::class, 'index'])
+            ->name('laporan.index');
 
-    // ================= LAPORAN =================
-    Route::get('laporan', [LaporanController::class, 'index'])
-        ->name('laporan.index');
+        // ================= USER =================
+        Route::get('users', [UserController::class, 'index'])
+            ->name('users.index');
 
-    // ================= USER =================
-    Route::get('users', [UserController::class, 'index'])
-        ->name('users.index');
-
-    Route::patch('users/{user}/status', [UserController::class, 'updateStatus'])
-        ->name('users.status');
-});
+        Route::patch('users/{user}/status', [UserController::class, 'updateStatus'])
+            ->name('users.status');
+    });
 
 
 /*

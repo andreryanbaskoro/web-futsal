@@ -38,6 +38,12 @@ class Jadwal extends Model
         return $this->hasOne(PemesananJadwal::class, 'id_jadwal', 'id_jadwal');
     }
 
+    public function pemesanan()
+    {
+        return $this->belongsTo(Pemesanan::class, 'id_pemesanan', 'id_pemesanan');
+    }
+
+
     /* =======================
      * HELPER
      * ======================= */

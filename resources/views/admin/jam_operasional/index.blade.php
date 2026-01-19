@@ -4,9 +4,12 @@
 
 <div
     class="space-y-1"
-    x-data="Table(@js($jamOperasional))">
+    x-data="Table(@js($jamOperasional), {
+        perPage: 10,
+        searchKeys: ['lapangan.nama_lapangan','hari','jam_buka','jam_tutup','interval_menit','harga']
+    })">
 
-    {{-- Include Flash Messages --}}
+    {{-- FLASH MESSAGE --}}
     @include('elements.flash-messages')
 
     {{-- CARD --}}
@@ -45,13 +48,29 @@
                 <table class="min-w-full">
                     <thead>
                         <tr class="border-y border-gray-200 dark:border-gray-700">
-                            <th class="px-4 py-3 text-sm text-gray-500 text-left">No</th>
-                            <th class="px-4 py-3 text-sm text-gray-500 text-left">Lapangan</th>
-                            <th class="px-4 py-3 text-sm text-gray-500 text-left">Hari</th>
-                            <th class="px-4 py-3 text-sm text-gray-500 text-left">Jam Buka</th>
-                            <th class="px-4 py-3 text-sm text-gray-500 text-left">Jam Tutup</th>
-                            <th class="px-4 py-3 text-sm text-gray-500 text-left">Interval (Menit)</th>
-                            <th class="px-4 py-3 text-sm text-gray-500 text-left">Harga</th>
+                            @php
+                                $columns = [
+                                    ['label' => 'No', 'key' => 'id_operasional'],
+                                    ['label' => 'Lapangan', 'key' => 'lapangan.nama_lapangan'],
+                                    ['label' => 'Hari', 'key' => 'hari'],
+                                    ['label' => 'Jam Buka', 'key' => 'jam_buka'],
+                                    ['label' => 'Jam Tutup', 'key' => 'jam_tutup'],
+                                    ['label' => 'Interval (Menit)', 'key' => 'interval_menit'],
+                                    ['label' => 'Harga', 'key' => 'harga'],
+                                ];
+                            @endphp
+                            @foreach($columns as $col)
+                                <th
+                                    class="px-4 py-3 text-sm text-gray-500 text-left cursor-pointer"
+                                    @click="sortBy('{{ $col['key'] }}')"
+                                    data-sort="{{ $col['key'] }}">
+                                    {{ $col['label'] }}
+                                    <span x-show="sortKey === '{{ $col['key'] }}'" class="ml-1">
+                                        <template x-if="sortOrder === 'asc'">▲</template>
+                                        <template x-if="sortOrder === 'desc'">▼</template>
+                                    </span>
+                                </th>
+                            @endforeach
                             <th class="px-4 py-3 text-sm text-gray-500 text-end">Aksi</th>
                         </tr>
                     </thead>
@@ -60,41 +79,37 @@
                         <template x-for="(item, index) in paginated" :key="item.id_operasional">
                             <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02]">
 
-                                <td class="px-4 py-4 text-sm text-gray-500"
-                                    x-text="(currentPage - 1) * perPage + index + 1">
-                                </td>
+                                {{-- NO --}}
+                                <td class="px-4 py-4 text-sm text-gray-500" x-text="(currentPage - 1) * perPage + index + 1"></td>
 
+                                {{-- LAPANGAN --}}
                                 <td class="px-4 py-4 text-sm text-gray-800 dark:text-white" x-text="item.lapangan.nama_lapangan"></td>
+
+                                {{-- HARI --}}
                                 <td class="px-4 py-4 text-sm text-gray-500 capitalize" x-text="item.hari"></td>
-                                <td class="px-4 py-4 text-sm text-gray-500"
-                                    x-text="item.jam_buka.slice(0,5)">
-                                </td>
-                                <td class="px-4 py-4 text-sm text-gray-500"
-                                    x-text="item.jam_tutup.slice(0,5)">
-                                </td>
+
+                                {{-- JAM BUKA --}}
+                                <td class="px-4 py-4 text-sm text-gray-500" x-text="item.jam_buka.slice(0,5)"></td>
+
+                                {{-- JAM TUTUP --}}
+                                <td class="px-4 py-4 text-sm text-gray-500" x-text="item.jam_tutup.slice(0,5)"></td>
+
+                                {{-- INTERVAL --}}
                                 <td class="px-4 py-4 text-sm text-gray-500" x-text="item.interval_menit"></td>
-                                <td
-                                    class="px-4 py-4 text-sm text-gray-500"
-                                    x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(item.harga)">
-                                </td>
+
+                                {{-- HARGA --}}
+                                <td class="px-4 py-4 text-sm text-gray-500" x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(item.harga)"></td>
+
+                                {{-- AKSI --}}
                                 <td class="px-4 py-4 text-end">
                                     <div class="flex justify-end gap-3">
-                                        <a
-                                            :href="`/admin/jam-operasional/${item.id_operasional}/edit`"
-                                            class="text-blue-500 hover:text-blue-700">
+                                        <a :href="`/admin/jam-operasional/${item.id_operasional}/edit`" class="text-blue-500 hover:text-blue-700">
                                             <i class="fas fa-edit"></i>
                                         </a>
-
-                                        <form
-                                            :action="`/admin/jam-operasional/${item.id_operasional}`"
-                                            method="POST"
-                                            x-ref="deleteForm"
-                                            @submit.prevent="showDeleteModal($event)">
+                                        <form :action="`/admin/jam-operasional/${item.id_operasional}`" method="POST" x-ref="deleteForm" @submit.prevent="showDeleteModal($event)">
                                             @csrf
                                             @method('DELETE')
-                                            <button class="text-red-500 hover:text-red-700">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </button>
+                                            <button class="text-red-500 hover:text-red-700"><i class="fas fa-trash-alt"></i></button>
                                         </form>
                                     </div>
                                 </td>
@@ -103,7 +118,7 @@
                         </template>
 
                         <tr x-show="paginated.length === 0">
-                            <td colspan="8" class="px-4 py-6 text-center text-gray-500">
+                            <td colspan="8" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">
                                 Data jam operasional tidak ditemukan
                             </td>
                         </tr>
@@ -115,34 +130,24 @@
         {{-- PAGINATION --}}
         <div class="px-6 py-4 border-t border-gray-200 dark:border-white/[0.05]">
             <div class="flex items-center justify-between">
-                <div>
-                    <button @click="prev" :disabled="currentPage === 1" :class="currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''" class="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50">
-                        Prev
-                    </button>
-                </div>
+                <button @click="prev" :disabled="currentPage === 1" :class="currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''" class="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Prev
+                </button>
 
-                <div>
-                    <ul class="flex items-center gap-1">
-                        <template x-for="page in displayedPages" :key="page">
-                            <li>
-                                <button
-                                    x-show="page !== '...'"
-                                    @click="goToPage(page)"
-                                    x-text="page"
-                                    :class="currentPage === page ? 'bg-blue-500 text-white' : 'text-gray-700 hover:bg-gray-100'"
-                                    class="h-9 w-9 flex items-center justify-center rounded-lg text-sm font-medium">
-                                </button>
-                                <span x-show="page === '...'" class="h-9 w-9 flex items-center justify-center text-gray-400">…</span>
-                            </li>
-                        </template>
-                    </ul>
-                </div>
+                <ul class="flex items-center gap-1">
+                    <template x-for="page in displayedPages" :key="page">
+                        <li>
+                            <button x-show="page !== '...'" @click="goToPage(page)" x-text="page"
+                                :class="currentPage === page ? 'bg-blue-500 text-white' : 'text-gray-700 hover:bg-gray-100'"
+                                class="h-9 w-9 flex items-center justify-center rounded-lg text-sm font-medium"></button>
+                            <span x-show="page === '...'" class="h-9 w-9 flex items-center justify-center text-gray-400">…</span>
+                        </li>
+                    </template>
+                </ul>
 
-                <div>
-                    <button @click="next" :disabled="currentPage === totalPages" :class="currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''" class="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50">
-                        Next
-                    </button>
-                </div>
+                <button @click="next" :disabled="currentPage === totalPages" :class="currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''" class="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Next
+                </button>
             </div>
         </div>
 

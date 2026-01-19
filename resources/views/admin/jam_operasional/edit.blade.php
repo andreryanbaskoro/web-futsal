@@ -10,13 +10,13 @@
     {{-- FORM --}}
     <form
         x-ref="jamOperasionalForm"
-        action="{{ route('admin.jam-operasional.update', $jamOperasional->id_operasional) }}"
+        action="{{ route('admin.jam_operasional.update', $jamOperasional->id_operasional) }}"
         method="POST">
         @csrf
         @method('PUT')
 
         {{-- FORM FIELDS --}}
-        @include('admin.jam-operasional._form')
+        @include('admin.jam_operasional._form')
 
         {{-- ACTION BUTTON --}}
         <div class="mt-6 flex justify-end gap-3">
