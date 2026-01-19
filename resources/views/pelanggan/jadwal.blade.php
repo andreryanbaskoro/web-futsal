@@ -134,6 +134,21 @@ $today = Carbon::now()->toDateString();
 </section>
 
 <script>
+    function hitungDurasiMenit(jamMulai, jamSelesai) {
+        const [mh, mm] = jamMulai.split(':').map(Number);
+        const [sh, sm] = jamSelesai.split(':').map(Number);
+
+        let start = mh * 60 + mm;
+        let end = sh * 60 + sm;
+
+        // lewat tengah malam
+        if (end <= start) {
+            end += 24 * 60;
+        }
+
+        return end - start;
+    }
+
     let selectedSlots = [];
     let totalPrice = 0;
 
@@ -143,6 +158,8 @@ $today = Carbon::now()->toDateString();
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
     }).format(n);
+
+
 
     document.getElementById('checkBtn').onclick = async () => {
         const field = fieldSelect.value;
@@ -175,146 +192,107 @@ $today = Carbon::now()->toDateString();
             return;
         }
 
-        document.getElementById('checkBtn').onclick = async () => {
-            const field = fieldSelect.value;
-            const date = dateSelect.value;
-
-            if (!field || !date) {
-                alert('Lengkapi pilihan');
-                return;
+        // Mengecek apakah slot sudah ada di selectedSlots sebelum menambahkannya
+        slots.forEach(s => {
+            const existingSlot = selectedSlots.find(slot => slot.id_jadwal === s.id_jadwal);
+            if (existingSlot) {
+                return; // Jangan menambahkan slot yang sama
             }
 
-            timeSlots.innerHTML = 'Loading...'; // Menampilkan loading saat menunggu data
-            selectedSlots = [];
-            totalPrice = 0;
-            resetSummary();
+            const el = document.createElement('div');
+            el.classList.add('time-slot');
 
-            const url = new URL("{{ route('pelanggan.jadwal.slots') }}", location.origin);
-            url.searchParams.append('id_lapangan', field);
-            url.searchParams.append('tanggal', date);
-
-            const res = await fetch(url);
-            const slots = await res.json();
-
-            const fieldText = fieldSelect.options[fieldSelect.selectedIndex].text;
-            scheduleInfo.innerText = new Date(date).toLocaleDateString('id-ID') + ' - ' + fieldText;
-
-            timeSlots.innerHTML = ''; // Reset tampilan slots
-
-            if (!slots.length) {
-                timeSlots.innerHTML = '<div class="text-muted">Tidak ada jadwal</div>';
-                return;
-            }
-
-            // Mengecek apakah slot sudah ada di selectedSlots sebelum menambahkannya
-            slots.forEach(s => {
-                const existingSlot = selectedSlots.find(slot => slot.id_jadwal === s.id_jadwal);
-                if (existingSlot) {
-                    return; // Jangan menambahkan slot yang sama
-                }
-
-                const el = document.createElement('div');
-                el.classList.add('time-slot');
-
-                el.innerHTML = `
+            el.innerHTML = `
         <div class="time">${s.jam}</div>
         <div class="price">${rupiah(s.harga)}</div>
     `;
 
-                // Mark slot as booked
-                if (s.booked) {
-                    el.classList.add('booked');
-                    el.innerHTML += `
+            // Mark slot as booked
+            if (s.booked) {
+                el.classList.add('booked');
+                el.innerHTML += `
             <div style="margin-top:6px; font-size:11px; color:#ef4444; font-weight:600;">
                 <i class="fas fa-times-circle" style="color:#ef4444; margin-right:5px;"></i>Sudah dipesan
             </div>
         `;
-                }
-                // Mark slot as past
-                else if (s.past) {
-                    el.classList.add('past');
-                    el.innerHTML += `
+            }
+            // Mark slot as past
+            else if (s.past) {
+                el.classList.add('past');
+                el.innerHTML += `
             <div style="margin-top:6px; font-size:11px; color:#9ca3af; font-weight:600;">
                 <i class="fas fa-clock" style="color:#9ca3af; margin-right:5px;"></i>Waktu Lewat
             </div>
         `;
-                }
-                // Available slot
-                // Available slot
-                else {
-                    el.classList.add('available');
-                    el.innerHTML += `
+            }
+            // Available slot
+            // Available slot
+            else {
+                el.classList.add('available');
+                el.innerHTML += `
         <div class="available-text" style="margin-top:6px; font-size:11px; color:#10b981; font-weight:600;">
             <i class="fas fa-check-circle" style="color:#10b981; margin-right:5px;"></i>Tersedia
         </div>
     `;
 
-                    // Jika sudah dipilih, ganti teks menjadi "Dipilih"
-                    if (existingSlot) {
-                        const availableText = el.querySelector('.available-text');
-                        if (availableText) {
-                            availableText.innerText = 'Dipilih';
-                            availableText.style.color = '#3b82f6'; // Warna biru untuk status "Dipilih"
-                        }
+                // Jika sudah dipilih, ganti teks menjadi "Dipilih"
+                if (existingSlot) {
+                    const availableText = el.querySelector('.available-text');
+                    if (availableText) {
+                        availableText.innerText = 'Dipilih';
+                        availableText.style.color = '#3b82f6'; // Warna biru untuk status "Dipilih"
                     }
-
-                    el.addEventListener('click', () => toggle(el, s));
                 }
 
+                el.addEventListener('click', () => toggle(el, s));
+            }
 
-                timeSlots.appendChild(el);
-            });
 
-        };
+            timeSlots.appendChild(el);
+        });
 
     };
 
 
 
     function toggle(el, s) {
-        // Proteksi tambahan jika slot sudah dipesan
-        if (s.booked || s.past) return; // Jika slot sudah dipesan atau lewat, tidak bisa dipilih
+        if (s.booked || s.past) return;
 
+        const key = s.jam_mulai;
         const availableText = el.querySelector('.available-text');
 
-        if (el.classList.contains('selected')) {
-            // Jika slot sudah dipilih, hapus statusnya
+        const index = selectedSlots.findIndex(x => x.jam_mulai === key);
+
+        // UNSELECT
+        if (index !== -1) {
             el.classList.remove('selected');
-            selectedSlots = selectedSlots.filter(x => x.id_jadwal !== s.id_jadwal); // Hapus slot dari selected
-            totalPrice -= s.harga;
+            totalPrice -= selectedSlots[index].harga;
+            selectedSlots.splice(index, 1);
 
-            // Mengubah kembali teks menjadi "Tersedia"
-            if (availableText) {
-                availableText.innerHTML = `
-        <i class="fas fa-check-circle" style="color:#10b981; margin-right:5px;"></i>
-        Tersedia
-    `;
-                availableText.style.color = '#10b981'; // Warna untuk "Tersedia"
-            }
-
-
-            // Menghapus tulisan "Dipilih" saat slot dibatalkan
-            const selectedText = el.querySelector('.selected-text');
-            if (selectedText) selectedText.remove();
+            availableText.innerHTML = `
+            <i class="fas fa-check-circle"></i> Tersedia
+        `;
+            availableText.style.color = '#10b981';
 
             updateSummary();
             return;
         }
 
-        // Jika slot belum dipilih, tandai slot sebagai dipilih
+        // SELECT
+        const durasi = hitungDurasiMenit(s.jam_mulai, s.jam_selesai);
+
         el.classList.add('selected');
-        selectedSlots.push(s); // Menambahkan slot yang dipilih
+        selectedSlots.push({
+            ...s,
+            durasi_menit: durasi
+        });
+
         totalPrice += s.harga;
 
-        // Mengubah teks "Tersedia" menjadi "Dipilih"
-        if (availableText) {
-            availableText.innerHTML = `
-        <i class="fas fa-circle" style="color:#3b82f6; margin-right:5px;"></i>
-        Dipilih
+        availableText.innerHTML = `
+        <i class="fas fa-circle"></i> Dipilih
     `;
-            availableText.style.color = '#3b82f6'; // Warna biru untuk teks "Dipilih"
-        }
-
+        availableText.style.color = '#3b82f6';
 
         updateSummary();
     }
@@ -365,8 +343,17 @@ $today = Carbon::now()->toDateString();
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    jadwal_ids: selectedSlots.map(s => s.id_jadwal)
+                    id_lapangan: fieldSelect.value,
+                    tanggal: dateSelect.value,
+                    slots: selectedSlots.map(s => ({
+                        jam_mulai: s.jam_mulai,
+                        jam_selesai: s.jam_selesai,
+                        harga: s.harga,
+                        durasi_menit: s.durasi_menit // ⬅️ PENTING
+                    }))
                 })
+
+
             });
 
             const data = await res.json();

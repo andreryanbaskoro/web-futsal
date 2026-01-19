@@ -215,11 +215,6 @@ $currentPath = request()->path();
             </div>
         </nav>
 
-        <!-- Sidebar Widget -->
-        <div x-data x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen" x-transition class="mt-auto">
-            @include('partials.admin.sidebar-widget')
-        </div>
-
     </div>
 </aside>
 

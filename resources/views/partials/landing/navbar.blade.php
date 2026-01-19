@@ -51,7 +51,7 @@
          </li>
 
        </ul>
-       <a href="{{ auth()->check() ? route('pelanggan.beranda') : route('login') }}" class="btn btn-primary btn-sm">
+       <a href="{{ route('login') }}" class="btn btn-primary btn-sm">
          <i class="fas fa-user"></i> Masuk
        </a>
 

@@ -8,6 +8,8 @@ use Midtrans\Notification;
 use App\Models\Pembayaran;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Pelanggan\BookingController;
+
 
 class MidtransController extends Controller
 {
@@ -101,23 +103,34 @@ class MidtransController extends Controller
             switch ($transactionStatus) {
 
                 case 'capture':
-                    // Credit Card
-                    if ($paymentType === 'credit_card') {
-                        if ($fraudStatus === 'challenge') {
-                            // Tetap pending
-                            $pemesanan->status_pemesanan = 'pending';
-                        } else {
+                    if ($paymentType === 'credit_card' && $fraudStatus !== 'challenge') {
+
+                        if ($pemesanan->status_pemesanan !== 'dibayar') {
+
                             $pemesanan->status_pemesanan = 'dibayar';
                             $pemesanan->waktu_bayar = now();
+                            $pemesanan->save();
+
+                            app(BookingController::class)
+                                ->markAsPaid($pemesanan);
                         }
                     }
                     break;
 
+
                 case 'settlement':
-                    // VA / QRIS / E-Wallet
-                    $pemesanan->status_pemesanan = 'dibayar';
-                    $pemesanan->waktu_bayar = now();
+                    if ($pemesanan->status_pemesanan !== 'dibayar') {
+
+                        $pemesanan->status_pemesanan = 'dibayar';
+                        $pemesanan->waktu_bayar = now();
+                        $pemesanan->save();
+
+                        // 🔥 INI YANG KURANG
+                        app(BookingController::class)
+                            ->markAsPaid($pemesanan);
+                    }
                     break;
+
 
                 case 'pending':
                     $pemesanan->status_pemesanan = 'pending';

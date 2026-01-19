@@ -75,39 +75,41 @@
                     {{-- Tanggal --}}
                     <div style="display:flex;justify-content:space-between;">
                         <span style="color:var(--color-gray-600);">Tanggal</span>
-                        <span style="font-weight:500;">{{ $tanggal }}</span>
+                        <span style="font-weight:500;">
+                            {{ $tanggal }}
+                        </span>
                     </div>
 
-                    {{-- Slot Waktu & Durasi --}}
+                    {{-- Waktu --}}
                     @php
-                    $waktuText = '';
                     $totalDurasi = 0;
+                    $waktuList = [];
                     @endphp
 
-                    @foreach($mergedSlots as $slot)
+                    @foreach ($mergedSlots as $slot)
                     @php
                     $totalDurasi += $slot['durasi_menit'];
-                    // Format jam tanpa detik
-                    $startFormatted = \Carbon\Carbon::parse($slot['start'])->format('H:i');
-                    $endFormatted = \Carbon\Carbon::parse($slot['end'])->format('H:i');
-                    $waktuText .= $startFormatted . ' - ' . $endFormatted . ', ';
+                    $waktuList[] = $slot['start'] . ' - ' . $slot['end'];
                     @endphp
                     @endforeach
 
-                    {{-- Hapus koma terakhir --}}
-                    @php
-                    $waktuText = rtrim($waktuText, ', ');
-                    @endphp
-
                     <div style="display:flex;justify-content:space-between;">
                         <span style="color:var(--color-gray-600);">Waktu</span>
-                        <span style="font-weight:500;">{{ $waktuText }}</span>
+                        <span style="font-weight:500;">
+                            {{ implode(', ', $waktuList) }}
+                        </span>
                     </div>
 
+                    {{-- Durasi --}}
                     <div style="display:flex;justify-content:space-between;">
                         <span style="color:var(--color-gray-600);">Durasi</span>
-                        <span style="font-weight:500;">{{ $totalDurasi }} Menit</span>
+                        <span style="font-weight:500;">
+                            {{ $totalDurasi }} Menit
+                        </span>
                     </div>
+
+
+
 
                     {{-- Status --}}
                     <div style="display:flex;justify-content:space-between;">

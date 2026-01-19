@@ -18,8 +18,17 @@ class PemesananJadwal extends Model
     protected $fillable = [
         'id_pemesanan',
         'id_jadwal',
+        'tanggal',        // ⬅️ TAMBAH
+        'jam_mulai',      // ⬅️ TAMBAH
+        'jam_selesai',    // ⬅️ TAMBAH
         'harga',
         'durasi_menit',
+    ];
+
+    protected $casts = [
+        'tanggal'     => 'date',
+        'jam_mulai'   => 'string',
+        'jam_selesai' => 'string',
     ];
 
     public $timestamps = true;

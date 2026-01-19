@@ -74,10 +74,29 @@
                 @else
                 @foreach($bookings as $pemesanan)
                 @php
-                $detail = $pemesanan->detailJadwal->first();
-                $jadwal = $detail?->jadwal;
-                $lapangan = $jadwal?->lapangan;
+                $details = $pemesanan->detailJadwal;
+
+                // lapangan (aman untuk pending & paid)
+                $lapangan = optional($details->first()?->jadwal)->lapangan ?? $pemesanan->lapangan ?? null;
+
+                // tanggal (ambil dari detail)
+                $tanggal = $details->first()?->tanggal;
+
+                // total durasi
+                $totalDurasi = $details->sum('durasi_menit');
+
+                // list jam
+                $jamList = [];
                 @endphp
+
+                @foreach ($details as $d)
+                @php
+                $mulai = substr($d->jadwal->jam_mulai ?? $d->jam_mulai, 0, 5);
+                $selesai = substr($d->jadwal->jam_selesai ?? $d->jam_selesai, 0, 5);
+                $jamList[] = $mulai . ' - ' . $selesai;
+                @endphp
+                @endforeach
+
 
 
                 <div class="booking-card" style="background: var(--color-white); border-radius: var(--radius-xl); box-shadow: var(--shadow-card); overflow: hidden; margin-bottom: var(--space-lg);">
@@ -107,21 +126,19 @@
                             <div class="booking-meta" style="display: flex; flex-wrap: wrap; gap: var(--space-md); font-size: var(--text-sm); color: var(--color-gray-600);">
                                 <span style="display: flex; align-items: center; gap: 4px;">
                                     <i class="fas fa-calendar" style="color: var(--color-primary);"></i>
-                                    {{ $jadwal?->tanggal 
-    ? \Carbon\Carbon::parse($jadwal->tanggal)->translatedFormat('l, d F Y') 
-    : '-' 
-}}
+                                    {{ $tanggal ? \Carbon\Carbon::parse($tanggal)->translatedFormat('l, d F Y') : '-' }}
                                 </span>
+
                                 <span style="display: flex; align-items: center; gap: 4px;">
                                     <i class="fas fa-clock" style="color: var(--color-primary);"></i>
-                                    {{ $jadwal?->jam_mulai ? \Carbon\Carbon::parse($jadwal->jam_mulai)->format('H:i') : '-' }} -
-                                    {{ $jadwal?->jam_selesai ? \Carbon\Carbon::parse($jadwal->jam_selesai)->format('H:i') : '-' }} WIT
-
+                                    {{ implode(', ', $jamList) }}
                                 </span>
+
                                 <span style="display: flex; align-items: center; gap: 4px;">
                                     <i class="fas fa-stopwatch" style="color: var(--color-primary);"></i>
-                                    {{ $pemesanan->detailJadwal->sum('durasi_menit') / 60 }} Jam
+                                    {{ $totalDurasi }} Menit
                                 </span>
+
                             </div>
                             <div style="margin-top: var(--space-md);">
                                 <span style="font-weight: 600; color: var(--color-primary);">

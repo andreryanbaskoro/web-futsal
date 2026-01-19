@@ -30,6 +30,7 @@ class JadwalController extends Controller
         ]);
 
         $tanggal = Carbon::parse($request->tanggal);
+
         $hariMap = [
             1 => 'senin',
             2 => 'selasa',
@@ -39,30 +40,25 @@ class JadwalController extends Controller
             6 => 'sabtu',
             7 => 'minggu',
         ];
+
         $hari = $hariMap[$tanggal->dayOfWeekIso];
 
-        // Ambil id_jadwal yang sudah dipesan (menggunakan relasi model PemesananJadwal)
-        $bookedJadwalIds = PemesananJadwal::whereHas('pemesanan', function ($q) use ($request) {
-            $q->where('id_lapangan', $request->id_lapangan)
-                ->whereNotIn('status_pemesanan', ['dibatalkan', 'kadaluarsa']); // sesuaikan nama status jika berbeda
-        })
-            ->whereHas('jadwal', function ($q) use ($tanggal) {
-                $q->whereDate('tanggal', $tanggal->toDateString());
+        /** AMBIL SLOT YANG SUDAH DIBAYAR */
+        $bookedSlots = Jadwal::where('id_lapangan', $request->id_lapangan)
+            ->whereDate('tanggal', $tanggal)
+            ->whereHas('pemesananJadwal.pemesanan', function ($q) {
+                $q->where('status_pemesanan', 'dibayar');
             })
-            ->distinct()
-            ->pluck('id_jadwal')
+            ->get()
+            ->map(fn($j) => $j->jam_mulai)
             ->toArray();
 
         $operasionals = JamOperasional::where('id_lapangan', $request->id_lapangan)
             ->where('hari', $hari)
             ->get();
 
-        if ($operasionals->isEmpty()) {
-            return response()->json([]);
-        }
-
         $slots = [];
-        $now = Carbon::now(); // waktu saat ini untuk perbandingan
+        $now = Carbon::now();
 
         foreach ($operasionals as $op) {
             $start = Carbon::createFromFormat('H:i:s', $op->jam_buka);
@@ -72,29 +68,18 @@ class JadwalController extends Controller
                 $jamMulai   = $start->format('H:i:s');
                 $jamSelesai = $start->copy()->addMinutes($op->interval_menit)->format('H:i:s');
 
-                $jadwal = Jadwal::firstOrCreate(
-                    [
-                        'id_lapangan' => $request->id_lapangan,
-                        'tanggal'     => $tanggal->toDateString(),
-                        'jam_mulai'   => $jamMulai,
-                    ],
-                    [
-                        'jam_selesai' => $jamSelesai,
-                    ]
-                );
-
-                // Periksa apakah jadwal sudah lewat
-                $isPast = Carbon::parse($jadwal->tanggal . ' ' . $jadwal->jam_mulai)->lt($now);
+                $isPast = Carbon::parse(
+                    $tanggal->toDateString() . ' ' . $jamMulai
+                )->lt($now);
 
                 $slots[] = [
-                    'id_jadwal'    => $jadwal->id_jadwal,
-                    'jam_mulai'    => substr($jamMulai, 0, 5),
-                    'jam_selesai'  => substr($jamSelesai, 0, 5),
-                    'jam'          => substr($jamMulai, 0, 5) . ' - ' . substr($jamSelesai, 0, 5),
-                    'harga' => round(($op->harga / 60) * $op->interval_menit, 0),
-                    'durasi_menit' => $op->interval_menit,
-                    'booked'       => in_array($jadwal->id_jadwal, $bookedJadwalIds),
-                    'past'         => $isPast,  // Tandai apakah slot sudah lewat
+                    'jam_mulai'   => substr($jamMulai, 0, 5),
+                    'jam_selesai' => substr($jamSelesai, 0, 5),
+                    'jam'         => substr($jamMulai, 0, 5) . ' - ' . substr($jamSelesai, 0, 5),
+                    'harga'       => round(($op->harga / 60) * $op->interval_menit, 0),
+                    'durasi'      => $op->interval_menit,
+                    'booked'      => in_array($jamMulai, $bookedSlots),
+                    'past'        => $isPast,
                 ];
 
                 $start->addMinutes($op->interval_menit);

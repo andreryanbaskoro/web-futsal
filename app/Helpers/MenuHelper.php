@@ -11,15 +11,49 @@ class MenuHelper
     private static function adminMenu(): array
     {
         return [
-            ['icon' => 'fa-solid fa-house', 'name' => 'Dashboard', 'path' => '/admin/dashboard'],
-            ['icon' => 'fa-solid fa-futbol', 'name' => 'Data Lapangan', 'path' => '/admin/lapangan'],
-            ['icon' => 'fa-solid fa-clock', 'name' => 'Jam Operasional', 'path' => '/admin/jam-operasional'], // << Tambahan
-            ['icon' => 'fa-solid fa-calendar', 'name' => 'Data Jadwal', 'path' => '/admin/jadwal'],
-            ['icon' => 'fa-solid fa-file-invoice', 'name' => 'Data Pemesanan', 'path' => '/admin/pemesanan'],
-            ['icon' => 'fa-solid fa-money-check-dollar', 'name' => 'Data Pembayaran', 'path' => '/admin/pembayaran'],
-            ['icon' => 'fa-solid fa-users', 'name' => 'Manajemen User', 'path' => '/admin/users'],
+            [
+                'icon' => 'fa-solid fa-house',
+                'name' => 'Dashboard',
+                'path' => '/admin/dashboard'
+            ],
+            [
+                'icon' => 'fa-solid fa-futbol',
+                'name' => 'Lapangan',
+                'path' => '/admin/lapangan'
+            ],
+            [
+                'icon' => 'fa-solid fa-clock',
+                'name' => 'Jam & Harga',
+                'path' => '/admin/jam-operasional'
+            ],
+            [
+                'icon' => 'fa-solid fa-calendar-days',
+                'name' => 'Jadwal Lapangan',
+                'path' => '/admin/jadwal'
+            ],
+            [
+                'icon' => 'fa-solid fa-file-invoice',
+                'name' => 'Pemesanan',
+                'path' => '/admin/pemesanan'
+            ],
+            [
+                'icon' => 'fa-solid fa-money-check-dollar',
+                'name' => 'Pembayaran',
+                'path' => '/admin/pembayaran'
+            ],
+            [
+                'icon' => 'fa-solid fa-chart-line',
+                'name' => 'Laporan',
+                'path' => '/admin/laporan'
+            ],
+            [
+                'icon' => 'fa-solid fa-users',
+                'name' => 'Manajemen User',
+                'path' => '/admin/users'
+            ],
         ];
     }
+
 
 
     private static function ownerMenu(): array

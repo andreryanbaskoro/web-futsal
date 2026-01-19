@@ -58,33 +58,69 @@ Route::get('/tentang', [LandingController::class, 'tentang'])->name('tentang');
 | ADMIN (WAJIB LOGIN)
 |--------------------------------------------------------------------------
 */
-
 use App\Http\Controllers\Admin\{
-    DashboardController as AdminDashboard,
+    DashboardController,
     LapanganController,
-    JadwalController,
     JamOperasionalController,
+    JadwalController,
     PemesananController,
     PembayaranController,
     LaporanController,
     UserController
 };
 
-Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'role:admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
 
-    Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
+    // ================= DASHBOARD =================
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard');
 
+    // ================= MASTER DATA =================
     Route::resource('lapangan', LapanganController::class);
-    Route::resource('jam-operasional', JamOperasionalController::class);
-    Route::resource('jadwal', JadwalController::class)->except(['show']);
+    Route::resource('jam-operasional', JamOperasionalController::class)
+        ->except(['show']);
 
-    Route::get('/pemesanan', [PemesananController::class, 'index'])->name('pemesanan.index');
-    Route::get('/pemesanan/{id}', [PemesananController::class, 'show'])->name('pemesanan.show');
-    Route::put('/pemesanan/{id}/verifikasi', [PemesananController::class, 'verifikasi'])
+    // ================= JADWAL =================
+    Route::get('jadwal', [JadwalController::class, 'index'])
+        ->name('jadwal.index');
+
+    Route::post('jadwal/generate', [JadwalController::class, 'generate'])
+        ->name('jadwal.generate');
+
+    Route::delete('jadwal/{jadwal}', [JadwalController::class, 'destroy'])
+        ->name('jadwal.destroy');
+
+    // ================= PEMESANAN =================
+    Route::get('pemesanan', [PemesananController::class, 'index'])
+        ->name('pemesanan.index');
+
+    Route::get('pemesanan/{pemesanan}', [PemesananController::class, 'show'])
+        ->name('pemesanan.show');
+
+    Route::patch('pemesanan/{pemesanan}/verifikasi', 
+        [PemesananController::class, 'verifikasi'])
         ->name('pemesanan.verifikasi');
 
-    Route::get('/pembayaran', [PembayaranController::class, 'index'])->name('pembayaran.index');
-    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    // ================= PEMBAYARAN =================
+    Route::get('pembayaran', [PembayaranController::class, 'index'])
+        ->name('pembayaran.index');
+
+    Route::get('pembayaran/{pembayaran}', [PembayaranController::class, 'show'])
+        ->name('pembayaran.show');
+
+    // ================= LAPORAN =================
+    Route::get('laporan', [LaporanController::class, 'index'])
+        ->name('laporan.index');
+
+    // ================= USER =================
+    Route::get('users', [UserController::class, 'index'])
+        ->name('users.index');
+
+    Route::patch('users/{user}/status', [UserController::class, 'updateStatus'])
+        ->name('users.status');
 });
 
 
