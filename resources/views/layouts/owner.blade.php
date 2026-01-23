@@ -5,8 +5,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    
+    <title>@yield('title', 'Owner Dashboard') | Futsal</title>
 
-    <title>{{ $title ?? 'Admin Dashboard' }} | Futsal</title>
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -115,8 +116,8 @@
     {{-- preloader end --}}
 
     <div class="min-h-screen xl:flex">
-        @include('partials.backdrop')
-        @include('partials.admin.sidebar')
+        @include('partials.owner.backdrop')
+        @include('partials.owner.sidebar')
 
         <div class="flex-1 transition-all duration-300 ease-in-out"
             :class="{
@@ -125,7 +126,7 @@
                 'ml-0': $store.sidebar.isMobileOpen
             }">
             <!-- app header start -->
-            @include('layouts.app-header')
+            @include('partials.owner.app-header')
             <!-- app header end -->
             <div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
                 @yield('content')

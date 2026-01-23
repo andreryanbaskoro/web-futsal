@@ -60,17 +60,16 @@ $currentPath = request()->path();
     <!-- Logo Section -->
     <div class="pt-8 pb-7 flex"
         :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ?
-        'xl:justify-center' :
-        'justify-start'">
-        <a href="/">
-            <img x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
-                class="dark:hidden" src="/images/logo/logo.svg" alt="Logo" width="150" height="40" />
-            <img x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
-                class="hidden dark:block" src="/images/logo/logo-dark.svg" alt="Logo" width="150"
-                height="40" />
-            <img x-show="!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen"
-                src="/images/logo/logo-icon.svg" alt="Logo" width="32" height="32" />
+    'justify-center' :
+    'justify-start'">
+        <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 font-bold text-lg text-gray-900 dark:text-white">
+            <!-- Icon Font Awesome selalu tampil -->
+            <i class="fas fa-futbol text-2xl"></i>
 
+            <!-- Text hanya tampil saat sidebar expand/hover/mobile open -->
+            <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen" class="transition-all duration-200">
+                Futsal ACR
+            </span>
         </a>
     </div>
 

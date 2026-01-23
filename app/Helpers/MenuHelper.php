@@ -42,15 +42,22 @@ class MenuHelper
                 'path' => '/admin/pembayaran'
             ],
             [
-                'icon' => 'fa-solid fa-chart-line',
-                'name' => 'Laporan',
-                'path' => '/admin/laporan'
+                'icon' => 'fa-solid fa-newspaper',
+                'name' => 'Artikel',
+                'path' => '/admin/articles'
+            ],
+            [
+                'icon' => 'fa-solid fa-image',
+                'name' => 'Galeri',
+                'path' => '/admin/galleries'
             ],
             [
                 'icon' => 'fa-solid fa-users',
-                'name' => 'Manajemen User',
-                'path' => '/admin/users'
+                'name' => 'Manajemen Pengguna',
+                'path' => '/admin/pengguna'
             ],
+
+
         ];
     }
 
@@ -62,9 +69,6 @@ class MenuHelper
             ['icon' => 'fa-solid fa-house', 'name' => 'Dashboard', 'path' => '/owner/dashboard'],
             ['icon' => 'fa-solid fa-calendar-check', 'name' => 'Laporan Jadwal Lapangan', 'path' => '/owner/laporan-jadwal'],
             ['icon' => 'fa-solid fa-clipboard', 'name' => 'Laporan Pemesanan', 'path' => '/owner/laporan-pemesanan'],
-            ['icon' => 'fa-solid fa-coins', 'name' => 'Laporan Transaksi', 'path' => '/owner/laporan-transaksi'],
-            ['icon' => 'fa-solid fa-user', 'name' => 'Profil', 'path' => '/profil'],
-            ['icon' => 'fa-solid fa-right-from-bracket', 'name' => 'Logout', 'path' => '/logout'],
         ];
     }
 
@@ -143,7 +147,7 @@ class MenuHelper
     {
         return [
             [
-                'title' => 'Main Menu',
+                'title' => 'Menu',
                 'items' => self::getMainNavItems(),
             ],
             // [

@@ -132,28 +132,21 @@
             </div>
 
 
-            <div class="space-y-4">
-                <button onclick="payNow('{{ $pemesanan->kode_pemesanan }}')"
-                    class="btn btn-primary btn-lg w-full">
+            <div>
+                <button onclick="payNow('{{ $pemesanan->kode_pemesanan }}')" class="btn btn-primary btn-lg w-full" style="margin-bottom: 12px;">
                     <i class="fas fa-credit-card"></i> Lanjut ke Pembayaran
                 </button>
 
-                <a href="{{ route('pelanggan.booking.history') }}" class="btn btn-outline w-full">
+                <a href="{{ route('pelanggan.booking.history') }}" class="btn btn-outline w-full" style="margin-top: 12px;">
                     <i class="fas fa-history"></i> Lihat Riwayat Booking
                 </a>
             </div>
 
+
+
         </div>
 
-        <div style="text-align:center;margin-top:var(--space-xl);padding:var(--space-lg);background:rgba(29,185,84,.1);border-radius:var(--radius-lg);">
-            <p style="font-size:var(--text-sm);color:var(--color-gray-700);">
-                <i class="fas fa-info-circle" style="color:var(--color-primary);"></i>
-                Detail booking juga telah dikirim ke email Anda.
-            </p>
-        </div>
-
-
-    </div>
+          </div>
     </div>
 </section>
 

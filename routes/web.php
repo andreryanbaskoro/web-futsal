@@ -45,6 +45,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->n
 Route::get('/', [LandingController::class, 'beranda'])->name('beranda');
 Route::get('/lapangan', [LandingController::class, 'lapangan'])->name('lapangan');
 Route::get('/jadwal', [LandingController::class, 'jadwal'])->name('jadwal');
+Route::get('/jadwal/slots', [LandingController::class, 'slots'])->name('jadwal.slots');
 Route::get('/galeri', [LandingController::class, 'galeri'])->name('galeri');
 Route::get('/blog', [LandingController::class, 'blog'])->name('blog');
 Route::get('/blog-detail', [LandingController::class, 'blogDetail'])->name('blog.detail');
@@ -68,8 +69,11 @@ use App\Http\Controllers\Admin\{
     JadwalController,
     PemesananController,
     PembayaranController,
-    LaporanController,
-    UserController
+    PenggunaController,
+    ArticleController,
+    GalleryController,
+    ProfileController,
+    NotificationController
 };
 
 Route::middleware(['auth', 'role:admin'])
@@ -83,6 +87,7 @@ Route::middleware(['auth', 'role:admin'])
 
         // ================= MASTER DATA =================
         Route::resource('lapangan', LapanganController::class);
+
         Route::resource('jam-operasional', JamOperasionalController::class)
             ->except(['show']);
 
@@ -110,17 +115,45 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('pembayaran/{pembayaran}', [PembayaranController::class, 'show'])
             ->name('pembayaran.show');
 
-        // ================= LAPORAN =================
-        Route::get('laporan', [LaporanController::class, 'index'])
-            ->name('laporan.index');
+        // ================= PENGGUNA =================
+        Route::resource('pengguna', PenggunaController::class);
 
-        // ================= USER =================
-        Route::get('users', [UserController::class, 'index'])
-            ->name('users.index');
+        // ================= ARTIKEL =================
+        Route::resource('articles', ArticleController::class);
 
-        Route::patch('users/{user}/status', [UserController::class, 'updateStatus'])
-            ->name('users.status');
+        // ================= GALERI =================
+        Route::resource('galleries', GalleryController::class);
+
+        // ================= PROFILE =================
+        Route::get('profile', [ProfileController::class, 'index'])
+            ->name('profile.index');
+
+        Route::put('profile', [ProfileController::class, 'update'])
+            ->name('profile.update');
+
+        Route::put('profile/password', [ProfileController::class, 'updatePassword'])
+            ->name('profile.password');
+
+        // ================= NOTIFIKASI =================
+        Route::get('notifications', [NotificationController::class, 'index'])
+            ->name('notifications.index'); // Halaman semua notifikasi
+
+        Route::get('notifications/fetch', [NotificationController::class, 'fetch'])
+            ->name('notifications.fetch'); // AJAX dropdown
+
+        Route::post('notifications/{id}/read', [NotificationController::class, 'markAsRead'])
+            ->name('notifications.read'); // Tandai satu notifikasi
+
+        Route::post('notifications/read-all', [NotificationController::class, 'markAllAsRead'])
+            ->name('notifications.readAll'); // Tandai semua
+
+        Route::post('notifications/mark-as-read/{id}', [NotificationController::class, 'markAsRead'])
+            ->name('notifications.markAsRead');
+
+        Route::post('notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])
+            ->name('notifications.markAllAsRead');
     });
+
 
 
 /*
@@ -131,17 +164,44 @@ Route::middleware(['auth', 'role:admin'])
 
 use App\Http\Controllers\Owner\{
     DashboardController as OwnerDashboard,
-    LaporanController as OwnerLaporan
+    LaporanJadwalController as OwnerLaporanJadwal,
+    LaporanPemesananController as OwnerLaporanPemesanan,
+    ProfileController as OwnerProfile
 };
 
-Route::middleware('auth')->prefix('owner')->name('owner.')->group(function () {
+Route::middleware('auth')
+    ->prefix('owner')
+    ->name('owner.')
+    ->group(function () {
 
-    Route::get('/dashboard', [OwnerDashboard::class, 'index'])->name('dashboard');
+        // ================= DASHBOARD =================
+        Route::get('/dashboard', [OwnerDashboard::class, 'index'])
+            ->name('dashboard');
 
-    Route::get('/laporan/jadwal', [OwnerLaporan::class, 'jadwal'])->name('laporan.jadwal');
-    Route::get('/laporan/pemesanan', [OwnerLaporan::class, 'pemesanan'])->name('laporan.pemesanan');
-    Route::get('/laporan/transaksi', [OwnerLaporan::class, 'transaksi'])->name('laporan.transaksi');
-});
+        // ================= LAPORAN JADWAL =================
+        Route::get('/laporan-jadwal', [OwnerLaporanJadwal::class, 'index'])
+            ->name('laporan.jadwal');
+
+        Route::get('/laporan-jadwal/export', [OwnerLaporanJadwal::class, 'exportExcel'])
+            ->name('laporan.jadwal.export');
+
+        // ================= LAPORAN PEMESANAN =================
+        Route::get('/laporan-pemesanan', [OwnerLaporanPemesanan::class, 'index'])
+            ->name('laporan.pemesanan');
+
+        Route::get('/laporan-pemesanan/export', [OwnerLaporanPemesanan::class, 'exportExcel'])
+            ->name('laporan.pemesanan.export');
+
+        // ================= PROFILE =================
+        Route::get('/profile', [OwnerProfile::class, 'index'])
+            ->name('profile.index');
+
+        Route::put('/profile', [OwnerProfile::class, 'update'])
+            ->name('profile.update');
+
+        Route::put('/profile/password', [OwnerProfile::class, 'updatePassword'])
+            ->name('profile.password');
+    });
 
 
 /*

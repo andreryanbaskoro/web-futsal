@@ -21,7 +21,9 @@
             {{-- BATAL --}}
             <button
                 type="button"
-                @click="$store.modal.show('cancel')"
+                @click="
+        $store.modal.redirectRoute = '{{ url()->previous() }}'; 
+        $store.modal.show('cancel')"
                 class="inline-flex items-center rounded-lg border border-gray-300 px-5 py-2.5
                    text-sm font-medium text-gray-700 hover:bg-gray-100
                    dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/5">
