@@ -27,7 +27,34 @@
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: var(--shadow-lg), 0 0 30px rgba(29, 185, 84, 0.4);
+    box-shadow:
+        var(--shadow-lg),
+        0 0 30px rgba(29, 185, 84, 0.4);
+}
+
+.btn-primary-blue {
+    background: var(--gradient-primary-blue);
+    color: var(--color-white);
+    box-shadow: var(--shadow-md), var(--shadow-glow);
+}
+
+.btn-primary-blue:hover {
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.5); /* efek glow biru */
+    transform: translateY(-1px);
+}
+
+.btn-outline-primary {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.btn-outline-primary:hover {
+    background: var(--color-primary);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow:
+        var(--shadow-lg),
+        0 0 20px rgba(29, 185, 84, 0.3);
 }
 
 .btn-secondary {
@@ -52,9 +79,29 @@
     color: var(--color-white);
 }
 
+.badge-rated {
+    display: inline-flex; /* pastikan flex aktif */
+    align-items: center; /* vertikal tengah */
+    justify-content: center; /* horizontal tengah */
+
+    background: linear-gradient(
+        135deg,
+        rgba(67, 160, 71, 0.15),
+        rgba(67, 160, 71, 0.05)
+    );
+    border: 1px solid rgba(67, 160, 71, 0.35);
+}
+
 .btn-accent {
     background: linear-gradient(135deg, #ffd700 0%, #ffa726 100%);
     color: var(--color-dark);
+}
+
+.btn-accent:hover {
+    box-shadow:
+        0 6px 12px rgba(0, 0, 0, 0.12),
+        /* shadow utama (lebih rapat) */ 0 0 8px rgba(255, 215, 0, 0.25),
+        /* gold glow kecil */ 0 0 12px rgba(255, 168, 38, 0.25); /* orange glow kecil */
 }
 
 .btn-sm {
@@ -558,7 +605,9 @@
 
 .profile-btn:hover {
     transform: translateY(-2px);
-    box-shadow: var(--shadow-lg), 0 0 30px rgba(29, 185, 84, 0.4);
+    box-shadow:
+        var(--shadow-lg),
+        0 0 30px rgba(29, 185, 84, 0.4);
 }
 
 .profile-btn .arrow {
@@ -663,4 +712,40 @@
     background: rgba(255, 107, 107, 0.15);
     color: #ff6b6b; /* Pastikan warna teks tetap merah */
     transform: translateY(-2px); /* Menambahkan animasi kecil */
+}
+
+/* =========================
+   Badge Status Pemesanan
+   ========================= */
+
+.badge-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.3em 0.65em;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 999px;
+    color: var(--color-white);
+    white-space: nowrap;
+}
+
+/* Pending */
+.badge-status.pending {
+    background: var(--color-warning);
+}
+
+/* Dibayar */
+.badge-status.dibayar {
+    background: var(--color-success);
+}
+
+/* Dibatalkan */
+.badge-status.dibatalkan {
+    background: var(--color-error);
+}
+
+/* Kadaluarsa */
+.badge-status.kadaluarsa {
+    background: var(--color-gray-600);
 }

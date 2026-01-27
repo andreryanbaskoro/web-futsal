@@ -6,8 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Booking lapangan futsal online lebih mudah dan cepat. Fasilitas premium, booking 24/7, pembayaran digital. FUSTAL ACR - Pilih, Booking, Main!">
     <meta name="keywords" content="futsal, booking lapangan, sewa lapangan futsal, FUSTAL ACR, booking online">
-    <title>FUSTAL ACR - Booking Lapangan Futsal Online</title>
 
+    <title>
+        @yield('title', 'Futsal ACR - Booking Lapangan Futsal Online')
+    </title>
 
 
     {{-- CSS --}}
@@ -31,7 +33,8 @@
     @stack('styles')
 </head>
 
-<body>
+<body data-page="@yield('page', 'default')">
+
 
     {{-- NAVBAR --}}
     @include('partials.landing.navbar')

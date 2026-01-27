@@ -24,6 +24,7 @@
 
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, #1db954 0%, #0d5c2e 100%);
+    --gradient-primary-blue: linear-gradient(135deg, #2563eb 0%, #16213e 100%);
     --gradient-dark: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     --gradient-hero: linear-gradient(
         135deg,

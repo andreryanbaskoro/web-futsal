@@ -11,18 +11,27 @@
             <div style="margin-top: var(--space-2xl);">
                 <div style="display: flex; justify-content: center; gap: var(--space-xl);">
                     <div>
-                        <div style="font-size: var(--text-3xl); font-weight: 700; color: var(--color-primary);">5+</div>
+                        <div style="font-size: var(--text-3xl); font-weight: 700; color: var(--color-primary);">
+                            {{ $totalLapangan ?? 0 }}+
+                        </div>
                         <div style="font-size: var(--text-sm); opacity: 0.8;">Lapangan</div>
                     </div>
+
                     <div>
-                        <div style="font-size: var(--text-3xl); font-weight: 700; color: var(--color-primary);">1000+</div>
+                        <div style="font-size: var(--text-3xl); font-weight: 700; color: var(--color-primary);">
+                            {{ $bookingBulanIni ?? 0 }}+
+                        </div>
                         <div style="font-size: var(--text-sm); opacity: 0.8;">Booking/Bulan</div>
                     </div>
+
                     <div>
-                        <div style="font-size: var(--text-3xl); font-weight: 700; color: var(--color-primary);">4.9</div>
+                        <div style="font-size: var(--text-3xl); font-weight: 700; color: var(--color-primary);">
+                            {{ number_format($ratingRataRata ?? 0, 1) }}
+                        </div>
                         <div style="font-size: var(--text-sm); opacity: 0.8;">Rating</div>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>

@@ -83,3 +83,8 @@
 
     </form>
 </x-common.component-card>
+
+
+@push('modals')
+@include('elements.modal-perbarui')
+@endpush

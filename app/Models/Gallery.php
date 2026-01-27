@@ -21,7 +21,7 @@ class Gallery extends Model
     protected $fillable = [
         'title',
         'description',
-        'category',
+        'category', //lapangan | fasilitas | aktivitas | event
         'image',
         'is_active',
     ];

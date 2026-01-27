@@ -52,8 +52,13 @@ class MenuHelper
                 'path' => '/admin/galleries'
             ],
             [
+                'icon' => 'fa-solid fa-message',
+                'name' => 'Pesan Kontak',
+                'path' => '/admin/kontak'
+            ],
+            [
                 'icon' => 'fa-solid fa-users',
-                'name' => 'Manajemen Pengguna',
+                'name' => 'Pengguna',
                 'path' => '/admin/pengguna'
             ],
 

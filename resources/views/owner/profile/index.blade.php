@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.owner')
 
 @section('content')
 <div class="space-y-6">
@@ -7,10 +7,11 @@
     @include('elements.flash-messages')
 
     {{-- FORM PROFILE --}}
-    @include('admin.profile._form-profile')
+    @include('owner.profile._form-profile')
 
     {{-- FORM GANTI PASSWORD --}}
-    @include('admin.profile._form-password')
+    @include('owner.profile._form-password')
 
 </div>
 @endsection
+

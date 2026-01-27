@@ -43,13 +43,21 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->n
 |--------------------------------------------------------------------------
 */
 Route::get('/', [LandingController::class, 'beranda'])->name('beranda');
+
 Route::get('/lapangan', [LandingController::class, 'lapangan'])->name('lapangan');
+
 Route::get('/jadwal', [LandingController::class, 'jadwal'])->name('jadwal');
 Route::get('/jadwal/slots', [LandingController::class, 'slots'])->name('jadwal.slots');
 Route::get('/galeri', [LandingController::class, 'galeri'])->name('galeri');
+
 Route::get('/blog', [LandingController::class, 'blog'])->name('blog');
-Route::get('/blog-detail', [LandingController::class, 'blogDetail'])->name('blog.detail');
+Route::get('/blog/{slug}', [LandingController::class, 'blogDetail'])
+    ->name('blog.detail');
+
 Route::get('/kontak', [LandingController::class, 'kontak'])->name('kontak');
+Route::post('/kontak/kirim', [LandingController::class, 'sendContact'])
+    ->name('contact.send');
+
 Route::get('/syarat', [LandingController::class, 'syarat'])->name('syarat');
 Route::get('/kebijakan', [LandingController::class, 'kebijakan'])->name('kebijakan');
 Route::get('/faq', [LandingController::class, 'faq'])->name('faq');
@@ -73,7 +81,8 @@ use App\Http\Controllers\Admin\{
     ArticleController,
     GalleryController,
     ProfileController,
-    NotificationController
+    NotificationController,
+    KontakController as AdminKontak
 };
 
 Route::middleware(['auth', 'role:admin'])
@@ -152,6 +161,19 @@ Route::middleware(['auth', 'role:admin'])
 
         Route::post('notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])
             ->name('notifications.markAllAsRead');
+
+        // ================= KONTAK =================
+        Route::get('kontak', [AdminKontak::class, 'index'])
+            ->name('kontak.index');
+
+        Route::get('kontak/{id}', [AdminKontak::class, 'show'])
+            ->name('kontak.show');
+
+        Route::patch('kontak/{id}/status/{status}', [AdminKontak::class, 'updateStatus'])
+            ->name('kontak.updateStatus');
+
+        Route::delete('kontak/{id}', [AdminKontak::class, 'destroy'])
+            ->name('kontak.destroy');
     });
 
 
@@ -211,11 +233,18 @@ Route::middleware('auth')
 */
 
 use App\Http\Controllers\Pelanggan\{
+    BlogController,
     DashboardController as PelangganBeranda,
     LapanganController as PelangganLapangan,
     JadwalController as PelangganJadwal,
     BookingController,
-    PaymentController
+    PaymentController,
+    GaleriController,
+    TentangController,
+    FaqController,
+    KontakController,
+    SyaratController,
+    ProfileController as PelangganProfile
 };
 
 Route::prefix('pelanggan')
@@ -224,7 +253,9 @@ Route::prefix('pelanggan')
     ->group(function () {
 
         Route::get('/beranda', [PelangganBeranda::class, 'index'])->name('beranda');
+
         Route::get('/lapangan', [PelangganLapangan::class, 'index'])->name('lapangan');
+
         Route::get('/jadwal', [PelangganJadwal::class, 'index'])->name('jadwal');
         Route::get('/jadwal/slots', [PelangganJadwal::class, 'slots'])->name('jadwal.slots');
         Route::post('/jadwal/slots', [PelangganJadwal::class, 'slots'])->name('jadwal.slots');
@@ -233,6 +264,42 @@ Route::prefix('pelanggan')
         Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
         Route::get('/booking-confirm/{kode}', [BookingController::class, 'bookingConfirm'])->name('booking.confirm');
         Route::get('/booking-history', [BookingController::class, 'bookingHistory'])->name('booking.history');
+        Route::get(
+            '/booking-history/{kode}',
+            [BookingController::class, 'bookingHistoryDetail']
+        )->name('booking.history.detail');
+        Route::post('/booking/rating/{kode}', [BookingController::class, 'giveRating'])->name('booking.rating');
+        
+
+
+
 
         Route::post('/payment/create-snap', [PaymentController::class, 'createSnap'])->name('payment.create_snap');
+
+        Route::get('/galeri', [GaleriController::class, 'index'])->name('galeri');
+
+
+        Route::get('/blog', [BlogController::class, 'blog'])->name('blog');
+        Route::get('/blog/{slug}', [BlogController::class, 'blogDetail'])
+            ->name('blog.detail');
+
+        Route::get('/tentang', [TentangController::class, 'tentang'])->name('tentang');
+
+        Route::get('/faq', [FaqController::class, 'faq'])->name('faq');
+
+        Route::get('/kontak', [KontakController::class, 'kontak'])->name('kontak');
+        Route::post('/kontak/kirim', [KontakController::class, 'sendContact'])
+            ->name('contact.send');
+
+        Route::get('/syarat', [SyaratController::class, 'syarat'])->name('syarat');
+
+        // ================= PROFILE =================
+        Route::get('/profil', [PelangganProfile::class, 'index'])
+            ->name('profile.index');
+
+        Route::put('/profil', [PelangganProfile::class, 'update'])
+            ->name('profile.update');
+
+        Route::put('/profil/password', [PelangganProfile::class, 'updatePassword'])
+            ->name('profile.password');
     });

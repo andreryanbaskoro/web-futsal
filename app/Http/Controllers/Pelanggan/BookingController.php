@@ -6,13 +6,19 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Pemesanan;
 use App\Models\Jadwal;
+use App\Models\Lapangan;
+use App\Models\Ulasan;
 use App\Models\PemesananJadwal;
 use App\Models\Notification;
 use App\Models\Pengguna;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Illuminate\Database\QueryException;
+
+
 
 class BookingController extends Controller
 {
@@ -245,16 +251,52 @@ class BookingController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
     /**
      * Halaman konfirmasi booking (render data untuk pemesanan dengan kode)
      */
     public function bookingConfirm(string $kode)
     {
+        // 1️⃣ Ambil pemesanan TANPA filter status & expired dulu
         $pemesanan = Pemesanan::where('kode_pemesanan', $kode)
             ->where('id_pengguna', auth()->id())
-            ->where('status_pemesanan', Pemesanan::PENDING)
-            ->where('expired_at', '>', now())
-            ->firstOrFail();
+            ->first();
+
+        // ❌ Kode tidak ada / bukan milik user
+        if (! $pemesanan) {
+            abort(404, 'Pemesanan tidak ditemukan.');
+        }
+
+        // ❌ Sudah dibayar → arahkan ke history
+        if ($pemesanan->status_pemesanan === Pemesanan::DIBAYAR) {
+            return redirect()
+                ->route('pelanggan.booking.history')
+                ->with('info', 'Pemesanan ini sudah dibayar.');
+        }
+
+        // ❌ Dibatalkan / kadaluarsa
+        if (in_array($pemesanan->status_pemesanan, [
+            Pemesanan::DIBATALKAN,
+            Pemesanan::KADALUARSA,
+        ])) {
+            return redirect()
+                ->route('pelanggan.booking.history')
+                ->with('error', 'Pemesanan ini sudah tidak aktif.');
+        }
+
+        // ❌ Expired berdasarkan waktu
+        if ($pemesanan->expired_at && $pemesanan->expired_at <= now()) {
+            $pemesanan->update([
+                'status_pemesanan' => Pemesanan::KADALUARSA,
+            ]);
+
+            return redirect()
+                ->route('pelanggan.booking.history')
+                ->with('error', 'Waktu pembayaran telah habis.');
+        }
+
+        // ✅ Sampai sini PASTI: pending & masih valid
+        // ==================================================
 
         $details = PemesananJadwal::with('jadwal.lapangan')
             ->where('id_pemesanan', $pemesanan->id_pemesanan)
@@ -267,12 +309,12 @@ class BookingController extends Controller
         }
 
         $first = $details->first();
-        $lapangan = $first->jadwal->lapangan ?? ($pemesanan->lapangan ?? null);
+        $lapangan = $first->jadwal->lapangan ?? $pemesanan->lapangan;
 
-        $tanggalVal = $first->tanggal;
-        $tanggalDisplay = Carbon::parse($tanggalVal)->translatedFormat('l, d F Y');
+        $tanggalDisplay = Carbon::parse($first->tanggal)
+            ->translatedFormat('l, d F Y');
 
-        // Merge slot berurutan
+        // 2️⃣ Merge slot berurutan
         $mergedSlots = [];
         $current = null;
 
@@ -287,16 +329,18 @@ class BookingController extends Controller
             if ($durasi <= 0) {
                 [$mh, $mm] = array_map('intval', explode(':', substr($jamMulaiRaw, 0, 5)));
                 [$sh, $sm] = array_map('intval', explode(':', substr($jamSelesaiRaw, 0, 5)));
+
                 $startMin = $mh * 60 + $mm;
-                $endMin = $sh * 60 + $sm;
+                $endMin   = $sh * 60 + $sm;
                 if ($endMin <= $startMin) $endMin += 24 * 60;
+
                 $durasi = $endMin - $startMin;
             }
 
-            if (!$current) {
+            if (! $current) {
                 $current = [
                     'start' => $jamMulai,
-                    'end'   => $jamSelesai,
+                    'end' => $jamSelesai,
                     'durasi_menit' => $durasi,
                 ];
                 continue;
@@ -309,7 +353,7 @@ class BookingController extends Controller
                 $mergedSlots[] = $current;
                 $current = [
                     'start' => $jamMulai,
-                    'end'   => $jamSelesai,
+                    'end' => $jamSelesai,
                     'durasi_menit' => $durasi,
                 ];
             }
@@ -319,6 +363,7 @@ class BookingController extends Controller
             $mergedSlots[] = $current;
         }
 
+        // 3️⃣ Render view
         return view('pelanggan.booking-confirm', [
             'pemesanan'   => $pemesanan,
             'mergedSlots' => $mergedSlots,
@@ -330,18 +375,157 @@ class BookingController extends Controller
 
 
 
+
     /**
      * Riwayat booking user
      */
     public function bookingHistory()
     {
         $bookings = Pemesanan::with([
-            'detailJadwal'
-        ])
-            ->where('id_pengguna', auth()->id())
-            ->orderBy('created_at', 'desc')
+            'detailJadwal.jadwal.lapangan',
+            'lapangan',
+            'ulasan' // <- tambah ini
+        ])->where('id_pengguna', auth()->user()->id_pengguna)
+            ->latest()
             ->get();
 
+
+
         return view('pelanggan.booking-history', compact('bookings'));
+    }
+
+
+
+    public function bookingHistoryDetail(string $kode)
+    {
+        $pemesanan = Pemesanan::with('ulasan') // jangan lupa eager-load ulasan
+            ->where('kode_pemesanan', $kode)
+            ->where('id_pengguna', auth()->id())
+            ->firstOrFail();
+
+        $details = PemesananJadwal::with('jadwal.lapangan')
+            ->where('id_pemesanan', $pemesanan->id_pemesanan)
+            ->orderBy('tanggal')
+            ->orderBy('jam_mulai')
+            ->get();
+
+        if ($details->isEmpty()) {
+            abort(404, 'Detail pemesanan tidak ditemukan');
+        }
+
+        $first = $details->first();
+        $lapangan = $first->jadwal->lapangan ?? $pemesanan->lapangan;
+
+        $tanggal = Carbon::parse($first->tanggal)
+            ->translatedFormat('l, d F Y');
+
+        // merge slot (pakai logic yang sama)
+        $mergedSlots = [];
+        $current = null;
+        foreach ($details as $d) {
+            $mulai = substr($d->jadwal->jam_mulai ?? $d->jam_mulai, 0, 5);
+            $selesai = substr($d->jadwal->jam_selesai ?? $d->jam_selesai, 0, 5);
+            $durasi = (int) $d->durasi_menit;
+
+            if (!$current) {
+                $current = [
+                    'start' => $mulai,
+                    'end' => $selesai,
+                    'durasi' => $durasi
+                ];
+                continue;
+            }
+
+            if ($mulai === $current['end']) {
+                $current['end'] = $selesai;
+                $current['durasi'] += $durasi;
+            } else {
+                $mergedSlots[] = $current;
+                $current = [
+                    'start' => $mulai,
+                    'end' => $selesai,
+                    'durasi' => $durasi
+                ];
+            }
+        }
+
+        if ($current) {
+            $mergedSlots[] = $current;
+        }
+
+        return view('pelanggan.booking-history-detail', compact(
+            'pemesanan',
+            'lapangan',
+            'tanggal',
+            'mergedSlots'
+        ));
+    }
+
+    public function giveRating(Request $request, $kode)
+    {
+        $user = Auth::user();
+
+        $pemesanan = Pemesanan::with(['ulasan', 'detailJadwal.jadwal.lapangan', 'lapangan'])
+            ->where('kode_pemesanan', $kode)
+            ->where('id_pengguna', $user->id_pengguna)
+            ->firstOrFail();
+
+        if ($pemesanan->status_pemesanan !== 'dibayar') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pemesanan belum selesai.'
+            ], 403);
+        }
+
+        $data = $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'review' => 'nullable|string|max:1000',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $isUpdate = (bool) $pemesanan->ulasan;
+
+            $lapanganId = $pemesanan->lapangan->id_lapangan
+                ?? $pemesanan->detailJadwal->first()->jadwal->lapangan->id_lapangan;
+
+            if ($pemesanan->ulasan) {
+                $ulasan = $pemesanan->ulasan;
+                $ulasan->rating = $data['rating'];
+                $ulasan->komentar = $data['review'] ?? null;
+                $ulasan->save();
+            } else {
+                $ulasan = Ulasan::create([
+                    'id_pemesanan' => $pemesanan->id_pemesanan,
+                    'id_pengguna'  => $user->id_pengguna,
+                    'id_lapangan'  => $lapanganId,
+                    'rating'       => $data['rating'],
+                    'komentar'     => $data['review'] ?? null,
+                ]);
+            }
+
+            // refresh rating lapangan
+            $lapangan = Lapangan::findOrFail($lapanganId);
+            $lapangan->refreshRating(); // pastikan method ini ada dan memperbarui rating & rating_count
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => $isUpdate ? 'Rating diperbarui.' : 'Terima kasih atas rating Anda!',
+                'avg_rating'   => (float) $lapangan->rating,
+                'rating_count' => (int) $lapangan->rating_count,
+                'user_rating'  => [
+                    'rating' => (int) $ulasan->rating,
+                    'komentar' => $ulasan->komentar,
+                ],
+            ]);
+        } catch (QueryException $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menyimpan ulasan.'
+            ], 500);
+        }
     }
 }

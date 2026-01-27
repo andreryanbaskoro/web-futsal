@@ -79,6 +79,8 @@
                 placeholder="Contoh: 10 orang" />
         </div>
 
+        @include('admin.lapangan._form-image')
+
 
         {{-- STATUS (TOGGLE) --}}
         @php

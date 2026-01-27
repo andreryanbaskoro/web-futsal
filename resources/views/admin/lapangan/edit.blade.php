@@ -12,6 +12,7 @@
     <form
         x-ref="lapanganForm"
         action="{{ route('admin.lapangan.update', $lapangan->id_lapangan) }}"
+        enctype="multipart/form-data"
         method="POST">
         @csrf
         @method('PUT')

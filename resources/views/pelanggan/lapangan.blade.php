@@ -1,6 +1,7 @@
 @extends('layouts.pelanggan')
 
-@section('title', 'Booking Lapangan Futsal Online')
+
+@section('title', 'Lapangan | Futsal ACR')
 
 @section('content')
 <!-- Page Header -->
@@ -14,7 +15,7 @@
 </section>
 
 <!-- Filter Section -->
-<section style="padding: var(--space-xl) 0; background: var(--color-gray-100);">
+<!-- <section style="padding: var(--space-xl) 0; background: var(--color-gray-100);">
     <div class="container">
         <div class="flex justify-between items-center" style="flex-wrap: wrap; gap: var(--space-md);">
             <div class="flex gap-md" style="flex-wrap: wrap;">
@@ -41,28 +42,47 @@
             </div>
         </div>
     </div>
-</section>
+</section> -->
 
 <!-- Fields List -->
 <section class="section">
     <div class="container">
         <div class="grid grid-3">
+            @forelse ($lapanganList as $lapangan)
+            @php
+            $hargaTermurah = optional($lapangan->jamOperasional->first())->harga;
+            @endphp
 
-            @forelse ($lapangans as $lapangan)
-            <div class="card field-card">
+            <div
+                class="card field-card animate-fadeInUp"
+                style="display:flex;flex-direction:column;height:100%;">
                 <div class="card-image">
-                    <img src="{{ $lapangan->image ?? 'https://images.unsplash.com/photo-1575361204480-aadea25e6e68?w=600&q=80' }}"
+                    @php
+                    // DEFAULT IMAGE (UNSPLASH)
+                    $defaultImage = 'https://images.unsplash.com/photo-1575361204480-aadea25e6e68?w=600&q=80';
+
+                    $imageSrc = $lapangan->image
+                    ? asset('storage/' . $lapangan->image)
+                    : $defaultImage;
+                    @endphp
+
+                    <img
+                        src="{{ $imageSrc }}"
                         alt="{{ $lapangan->nama_lapangan }}">
 
-                    <span class="field-badge badge 
-                    {{ $lapangan->status === 'aktif' ? 'badge-success' : 'badge-warning' }}">
-                        <i class="fas 
-                        {{ $lapangan->status === 'aktif' ? 'fa-check-circle' : 'fa-clock' }}"></i>
-                        {{ $lapangan->status === 'aktif' ? 'Tersedia' : 'Hampir Penuh' }}
+
+                    @if ($lapangan->status === 'aktif')
+                    <span class="field-badge badge badge-success">
+                        <i class="fas fa-check-circle"></i> Tersedia
                     </span>
+                    @else
+                    <span class="field-badge badge badge-warning">
+                        <i class="fas fa-clock"></i> Hampir Penuh
+                    </span>
+                    @endif
                 </div>
 
-                <div class="card-body">
+                <div class="card-body" style="display:flex;flex-direction:column;flex:1;">
                     <h3 class="card-title">
                         {{ $lapangan->nama_lapangan }}
                     </h3>
@@ -72,43 +92,47 @@
                             <i class="fas fa-ruler-combined"></i>
                             {{ $lapangan->dimensi ?? '-' }}
                         </span>
-
                         <span>
                             <i class="fas fa-users"></i>
-                            {{ $lapangan->kapasitas ?? '-' }}
+                            {{ $lapangan->kapasitas }} orang
                         </span>
-
                         <span class="field-rating">
                             <i class="fas fa-star"></i>
-                            {{ number_format($lapangan->rating, 1) }}
-                            <small>({{ $lapangan->rating_count }})</small>
+                            {{ $lapangan->rating }} ({{ $lapangan->rating_count }})
                         </span>
-
                     </div>
 
                     <p class="card-text">
-                        {{ $lapangan->deskripsi ?? 'Deskripsi belum tersedia.' }}
+                        {{ $lapangan->deskripsi }}
                     </p>
 
-                    <div class="field-footer">
+                    <div
+                        class="field-footer"
+                        style="margin-top:auto;display:flex;justify-content:space-between;align-items:center;">
                         <div class="field-price">
-                            Rp {{ number_format($lapangan->harga, 0, ',', '.') }}
-                            <span>/{{ $lapangan->interval_menit }} menit</span>
+                            @if ($hargaTermurah)
+                            Rp {{ number_format($hargaTermurah, 0, ',', '.') }}
+                            <span>/jam</span>
+                            @else
+                            <span>Harga belum tersedia</span>
+                            @endif
                         </div>
 
-                        <a href="#"
+                        <a
+                            href="{{ route('pelanggan.jadwal') }}"
                             class="btn btn-primary btn-sm">
+                            <i class="fas fa-calendar-check me-1"></i>
                             Booking
                         </a>
+
                     </div>
                 </div>
             </div>
             @empty
-            <p style="grid-column: 1 / -1; text-align:center;">
-                Lapangan belum tersedia.
+            <p style="grid-column: span 3; text-align: center;">
+                Tidak ada lapangan tersedia
             </p>
             @endforelse
-
         </div>
 
     </div>

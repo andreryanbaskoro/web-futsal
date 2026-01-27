@@ -10,6 +10,7 @@
     <form
         x-ref="lapanganForm"
         action="{{ route('admin.lapangan.store') }}"
+        enctype="multipart/form-data"
         method="POST">
         @csrf
 

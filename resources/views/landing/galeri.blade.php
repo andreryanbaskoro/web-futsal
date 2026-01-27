@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Booking Lapangan Futsal Online')
+
+@section('title', 'Galeri | Futsal ACR')
 
 @push('styles')
 <style>
@@ -122,94 +123,22 @@
         </div>
 
         <div class="masonry-grid">
-            <div class="masonry-item" data-category="lapangan">
-                <img src="https://images.unsplash.com/photo-1552667466-07770ae110d0?w=600&q=80"
-                    alt="Lapangan Utama">
+            @forelse ($galleries as $gallery)
+            <div class="masonry-item" data-category="{{ $gallery->category }}">
+                <img src="{{ $gallery->image_url }}" alt="{{ $gallery->title }}">
+
                 <div class="masonry-overlay">
-                    <h4>Lapangan Utama</h4>
-                    <p>Rumput sintetis premium</p>
+                    <h4>{{ $gallery->title }}</h4>
+                    <p>{{ $gallery->description }}</p>
                 </div>
             </div>
-            <div class="masonry-item" data-category="aktivitas">
-                <img src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=600&q=80"
-                    alt="Pertandingan">
-                <div class="masonry-overlay">
-                    <h4>Pertandingan Seru</h4>
-                    <p>Komunitas futsal bermain</p>
-                </div>
-            </div>
-            <div class="masonry-item" data-category="fasilitas">
-                <img src="https://images.unsplash.com/photo-1606925797300-0b35e9d1794e?w=600&q=80"
-                    alt="Ruang Ganti">
-                <div class="masonry-overlay">
-                    <h4>Ruang Ganti</h4>
-                    <p>Bersih dan nyaman</p>
-                </div>
-            </div>
-            <div class="masonry-item" data-category="lapangan">
-                <img src="https://images.unsplash.com/photo-1575361204480-aadea25e6e68?w=600&q=80" alt="Lapangan A">
-                <div class="masonry-overlay">
-                    <h4>Lapangan A</h4>
-                    <p>Vinyl premium</p>
-                </div>
-            </div>
-            <div class="masonry-item" data-category="event">
-                <img src="https://images.unsplash.com/photo-1551958219-acbc608c6377?w=600&q=80" alt="Tournament">
-                <div class="masonry-overlay">
-                    <h4>Turnamen</h4>
-                    <p>Event bulanan</p>
-                </div>
-            </div>
-            <div class="masonry-item" data-category="lapangan">
-                <img src="https://images.unsplash.com/photo-1624880357913-a8539238245b?w=600&q=80" alt="Lapangan B">
-                <div class="masonry-overlay">
-                    <h4>Lapangan B</h4>
-                    <p>Rumput sintetis standar FIFA</p>
-                </div>
-            </div>
-            <div class="masonry-item" data-category="fasilitas">
-                <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&q=80" alt="Gym Area">
-                <div class="masonry-overlay">
-                    <h4>Area Pemanasan</h4>
-                    <p>Fasilitas gym mini</p>
-                </div>
-            </div>
-            <div class="masonry-item" data-category="aktivitas">
-                <img src="https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=600&q=80" alt="Training">
-                <div class="masonry-overlay">
-                    <h4>Latihan Tim</h4>
-                    <p>Sesi training rutin</p>
-                </div>
-            </div>
-            <div class="masonry-item" data-category="lapangan">
-                <img src="https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=600&q=80" alt="Lapangan C">
-                <div class="masonry-overlay">
-                    <h4>Lapangan C</h4>
-                    <p>Parquet indoor</p>
-                </div>
-            </div>
-            <div class="masonry-item" data-category="fasilitas">
-                <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80" alt="Cafe Area">
-                <div class="masonry-overlay">
-                    <h4>Cafe & Resto</h4>
-                    <p>Santai setelah bermain</p>
-                </div>
-            </div>
-            <div class="masonry-item" data-category="event">
-                <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&q=80" alt="Award">
-                <div class="masonry-overlay">
-                    <h4>Penyerahan Piala</h4>
-                    <p>Juara turnamen 2025</p>
-                </div>
-            </div>
-            <div class="masonry-item" data-category="aktivitas">
-                <img src="https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=600&q=80" alt="Pemanasan">
-                <div class="masonry-overlay">
-                    <h4>Sesi Pemanasan</h4>
-                    <p>Persiapan sebelum main</p>
-                </div>
-            </div>
+            @empty
+            <p style="text-align:center; width:100%;">
+                Belum ada foto di galeri.
+            </p>
+            @endforelse
         </div>
+
     </div>
 </section>
 @endsection

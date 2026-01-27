@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Booking Lapangan Futsal Online')
+
+@section('title', 'Lapangan | Futsal ACR')
 
 @section('content')
 <!-- Page Header -->
@@ -14,7 +15,7 @@
 </section>
 
 <!-- Filter Section -->
-<section style="padding: var(--space-xl) 0; background: var(--color-gray-100);">
+<!-- <section style="padding: var(--space-xl) 0; background: var(--color-gray-100);">
     <div class="container">
         <div class="flex justify-between items-center" style="flex-wrap: wrap; gap: var(--space-md);">
             <div class="flex gap-md" style="flex-wrap: wrap;">
@@ -41,176 +42,99 @@
             </div>
         </div>
     </div>
-</section>
+</section> -->
 
 <!-- Fields List -->
 <section class="section">
     <div class="container">
         <div class="grid grid-3">
-            <!-- Field 1 -->
-            <div class="card field-card">
-                <div class="card-image">
-                    <img src="https://images.unsplash.com/photo-1575361204480-aadea25e6e68?w=600&q=80"
-                        alt="Lapangan A">
-                    <span class="field-badge badge badge-success"><i class="fas fa-check-circle"></i>
-                        Tersedia</span>
-                </div>
-                <div class="card-body">
-                    <h3 class="card-title">Lapangan A - Vinyl Premium</h3>
-                    <div class="field-info">
-                        <span><i class="fas fa-ruler-combined"></i> 25x15m</span>
-                        <span><i class="fas fa-users"></i> 10-12 orang</span>
-                        <span class="field-rating"><i class="fas fa-star"></i> 4.8 (120)</span>
-                    </div>
-                    <p class="card-text">Lapangan vinyl premium dengan kualitas terbaik, dilengkapi pencahayaan LED
-                        dan AC full.</p>
-                    <ul
-                        style="margin-bottom: var(--space-md); font-size: var(--text-sm); color: var(--color-gray-600);">
-                        <li><i class="fas fa-check" style="color: var(--color-primary); margin-right: 8px;"></i> AC
-                            & Ventilasi</li>
-                        <li><i class="fas fa-check" style="color: var(--color-primary); margin-right: 8px;"></i> LED
-                            Lighting</li>
-                        <li><i class="fas fa-check" style="color: var(--color-primary); margin-right: 8px;"></i>
-                            Tribun Penonton</li>
-                    </ul>
-                    <div class="field-footer">
-                        <div class="field-price">Rp 150.000 <span>/jam</span></div>
-                        <a href="jadwal.html?field=1" class="btn btn-primary btn-sm">Booking</a>
-                    </div>
-                </div>
-            </div>
+            @forelse ($lapanganList as $lapangan)
+            @php
+            $hargaTermurah = optional($lapangan->jamOperasional->first())->harga;
+            @endphp
 
-            <!-- Field 2 -->
-            <div class="card field-card">
+            <div
+                class="card field-card animate-fadeInUp"
+                style="display:flex;flex-direction:column;height:100%;">
                 <div class="card-image">
-                    <img src="https://images.unsplash.com/photo-1624880357913-a8539238245b?w=600&q=80"
-                        alt="Lapangan B">
-                    <span class="field-badge badge badge-success"><i class="fas fa-check-circle"></i>
-                        Tersedia</span>
-                </div>
-                <div class="card-body">
-                    <h3 class="card-title">Lapangan B - Rumput Sintetis</h3>
-                    <div class="field-info">
-                        <span><i class="fas fa-ruler-combined"></i> 30x18m</span>
-                        <span><i class="fas fa-users"></i> 14-16 orang</span>
-                        <span class="field-rating"><i class="fas fa-star"></i> 4.9 (95)</span>
-                    </div>
-                    <p class="card-text">Lapangan rumput sintetis standar FIFA dengan ukuran luas untuk permainan
-                        profesional.</p>
-                    <ul
-                        style="margin-bottom: var(--space-md); font-size: var(--text-sm); color: var(--color-gray-600);">
-                        <li><i class="fas fa-check" style="color: var(--color-primary); margin-right: 8px;"></i>
-                            Rumput FIFA Quality</li>
-                        <li><i class="fas fa-check" style="color: var(--color-primary); margin-right: 8px;"></i> LED
-                            Lighting</li>
-                        <li><i class="fas fa-check" style="color: var(--color-primary); margin-right: 8px;"></i>
-                            Scoreboard Digital</li>
-                    </ul>
-                    <div class="field-footer">
-                        <div class="field-price">Rp 200.000 <span>/jam</span></div>
-                        <a href="jadwal.html?field=2" class="btn btn-primary btn-sm">Booking</a>
-                    </div>
-                </div>
-            </div>
+                    @php
+                    // DEFAULT IMAGE (UNSPLASH)
+                    $defaultImage = 'https://images.unsplash.com/photo-1575361204480-aadea25e6e68?w=600&q=80';
 
-            <!-- Field 3 -->
-            <div class="card field-card">
-                <div class="card-image">
-                    <img src="https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=600&q=80"
-                        alt="Lapangan C">
-                    <span class="field-badge badge badge-warning"><i class="fas fa-clock"></i> Hampir Penuh</span>
-                </div>
-                <div class="card-body">
-                    <h3 class="card-title">Lapangan C - Parquet Indoor</h3>
-                    <div class="field-info">
-                        <span><i class="fas fa-ruler-combined"></i> 25x15m</span>
-                        <span><i class="fas fa-users"></i> 10-12 orang</span>
-                        <span class="field-rating"><i class="fas fa-star"></i> 4.7 (80)</span>
-                    </div>
-                    <p class="card-text">Lapangan parquet indoor dengan suasana nyaman dan AC, cocok untuk latihan
-                        rutin.</p>
-                    <ul
-                        style="margin-bottom: var(--space-md); font-size: var(--text-sm); color: var(--color-gray-600);">
-                        <li><i class="fas fa-check" style="color: var(--color-primary); margin-right: 8px;"></i>
-                            Full AC</li>
-                        <li><i class="fas fa-check" style="color: var(--color-primary); margin-right: 8px;"></i>
-                            Sound System</li>
-                        <li><i class="fas fa-check" style="color: var(--color-primary); margin-right: 8px;"></i>
-                            Locker Room</li>
-                    </ul>
-                    <div class="field-footer">
-                        <div class="field-price">Rp 175.000 <span>/jam</span></div>
-                        <a href="jadwal.html?field=3" class="btn btn-primary btn-sm">Booking</a>
-                    </div>
-                </div>
-            </div>
+                    $imageSrc = $lapangan->image
+                    ? asset('storage/' . $lapangan->image)
+                    : $defaultImage;
+                    @endphp
 
-            <!-- Field 4 -->
-            <div class="card field-card">
-                <div class="card-image">
-                    <img src="https://images.unsplash.com/photo-1552667466-07770ae110d0?w=600&q=80"
-                        alt="Lapangan D">
-                    <span class="field-badge badge badge-success"><i class="fas fa-check-circle"></i>
-                        Tersedia</span>
-                </div>
-                <div class="card-body">
-                    <h3 class="card-title">Lapangan D - Outdoor Premium</h3>
-                    <div class="field-info">
-                        <span><i class="fas fa-ruler-combined"></i> 35x20m</span>
-                        <span><i class="fas fa-users"></i> 16-20 orang</span>
-                        <span class="field-rating"><i class="fas fa-star"></i> 4.6 (65)</span>
-                    </div>
-                    <p class="card-text">Lapangan outdoor dengan rumput sintetis terbaik, cocok untuk turnamen dan
-                        acara besar.</p>
-                    <ul
-                        style="margin-bottom: var(--space-md); font-size: var(--text-sm); color: var(--color-gray-600);">
-                        <li><i class="fas fa-check" style="color: var(--color-primary); margin-right: 8px;"></i>
-                            Ukuran Besar</li>
-                        <li><i class="fas fa-check" style="color: var(--color-primary); margin-right: 8px;"></i>
-                            Floodlight</li>
-                        <li><i class="fas fa-check" style="color: var(--color-primary); margin-right: 8px;"></i>
-                            Tribun 100 Orang</li>
-                    </ul>
-                    <div class="field-footer">
-                        <div class="field-price">Rp 250.000 <span>/jam</span></div>
-                        <a href="jadwal.html?field=4" class="btn btn-primary btn-sm">Booking</a>
-                    </div>
-                </div>
-            </div>
+                    <img
+                        src="{{ $imageSrc }}"
+                        alt="{{ $lapangan->nama_lapangan }}">
 
-            <!-- Field 5 -->
-            <div class="card field-card">
-                <div class="card-image">
-                    <img src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=600&q=80"
-                        alt="Lapangan E">
-                    <span class="field-badge badge badge-success"><i class="fas fa-check-circle"></i>
-                        Tersedia</span>
+
+                    @if ($lapangan->status === 'aktif')
+                    <span class="field-badge badge badge-success">
+                        <i class="fas fa-check-circle"></i> Tersedia
+                    </span>
+                    @else
+                    <span class="field-badge badge badge-warning">
+                        <i class="fas fa-clock"></i> Hampir Penuh
+                    </span>
+                    @endif
                 </div>
-                <div class="card-body">
-                    <h3 class="card-title">Lapangan E - Training Court</h3>
+
+                <div class="card-body" style="display:flex;flex-direction:column;flex:1;">
+                    <h3 class="card-title">
+                        {{ $lapangan->nama_lapangan }}
+                    </h3>
+
                     <div class="field-info">
-                        <span><i class="fas fa-ruler-combined"></i> 20x12m</span>
-                        <span><i class="fas fa-users"></i> 8-10 orang</span>
-                        <span class="field-rating"><i class="fas fa-star"></i> 4.5 (45)</span>
+                        <span>
+                            <i class="fas fa-ruler-combined"></i>
+                            {{ $lapangan->dimensi ?? '-' }}
+                        </span>
+                        <span>
+                            <i class="fas fa-users"></i>
+                            {{ $lapangan->kapasitas }} orang
+                        </span>
+                        <span class="field-rating">
+                            <i class="fas fa-star"></i>
+                            {{ $lapangan->rating }} ({{ $lapangan->rating_count }})
+                        </span>
                     </div>
-                    <p class="card-text">Lapangan latihan dengan ukuran compact, cocok untuk training personal atau
-                        tim kecil.</p>
-                    <ul
-                        style="margin-bottom: var(--space-md); font-size: var(--text-sm); color: var(--color-gray-600);">
-                        <li><i class="fas fa-check" style="color: var(--color-primary); margin-right: 8px;"></i>
-                            Training Equipment</li>
-                        <li><i class="fas fa-check" style="color: var(--color-primary); margin-right: 8px;"></i>
-                            Video Recording</li>
-                        <li><i class="fas fa-check" style="color: var(--color-primary); margin-right: 8px;"></i>
-                            Coach Room</li>
-                    </ul>
-                    <div class="field-footer">
-                        <div class="field-price">Rp 100.000 <span>/jam</span></div>
-                        <a href="jadwal.html?field=5" class="btn btn-primary btn-sm">Booking</a>
+
+                    <p class="card-text">
+                        {{ $lapangan->deskripsi }}
+                    </p>
+
+                    <div
+                        class="field-footer"
+                        style="margin-top:auto;display:flex;justify-content:space-between;align-items:center;">
+                        <div class="field-price">
+                            @if ($hargaTermurah)
+                            Rp {{ number_format($hargaTermurah, 0, ',', '.') }}
+                            <span>/jam</span>
+                            @else
+                            <span>Harga belum tersedia</span>
+                            @endif
+                        </div>
+
+                        <a
+                            href="{{ route('jadwal') }}"
+                            class="btn btn-primary btn-sm">
+                            <i class="fas fa-calendar-check me-1"></i>
+                            Booking
+                        </a>
+
                     </div>
                 </div>
             </div>
+            @empty
+            <p style="grid-column: span 3; text-align: center;">
+                Tidak ada lapangan tersedia
+            </p>
+            @endforelse
         </div>
+
     </div>
 </section>
 @endsection

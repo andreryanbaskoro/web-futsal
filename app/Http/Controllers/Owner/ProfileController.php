@@ -77,7 +77,7 @@ class ProfileController extends Controller
         $request->validate(
             [
                 'password_lama' => 'required',
-                'password'      => [
+                'password' => [
                     'required',
                     'confirmed',
                     Password::min(8)->letters()->numbers(),
@@ -88,6 +88,8 @@ class ProfileController extends Controller
                 'password.required'      => 'Password baru wajib diisi.',
                 'password.confirmed'     => 'Konfirmasi password tidak cocok.',
                 'password.min'           => 'Password minimal 8 karakter.',
+                'password.letters'       => 'Password harus mengandung huruf.',
+                'password.numbers'       => 'Password harus mengandung angka.',
             ]
         );
 

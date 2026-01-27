@@ -23,7 +23,9 @@ class Article extends Model
         'konten',
         'tags',
     ];
-    
+
+    protected $appends = ['featured_image_url'];
+
 
     /* =======================
      * RELASI (Opsional)
@@ -63,4 +65,15 @@ class Article extends Model
         'tags' => 'array',          // otomatis konversi JSON ke array
         'tanggal_post' => 'date',   // format tanggal
     ];
+
+    public function getFeaturedImageUrlAttribute()
+    {
+        if (!$this->featured_image) {
+            return asset('images/no-image.png'); // opsional fallback
+        }
+
+        return Str::startsWith($this->featured_image, ['http://', 'https://'])
+            ? $this->featured_image
+            : asset('storage/' . $this->featured_image);
+    }
 }

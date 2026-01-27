@@ -55,7 +55,12 @@ class Pemesanan extends Model
     {
         return $this->hasMany(PemesananJadwal::class, 'id_pemesanan');
     }
-    
+
+    public function ulasan()
+    {
+        return $this->hasOne(Ulasan::class, 'id_pemesanan', 'id_pemesanan');
+    }
+
 
 
 

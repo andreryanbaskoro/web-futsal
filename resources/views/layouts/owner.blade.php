@@ -5,12 +5,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    
-    <title>@yield('title', 'Owner Dashboard') | Futsal</title>
+
+    <title>{{ $title ?? 'Owner Dashboard' }} | Futsal</title>
+
 
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
 
     <!-- Alpine.js -->
     {{-- <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script> --}}
@@ -21,6 +23,9 @@
     <!-- Theme Store -->
     <script>
         document.addEventListener('alpine:init', () => {
+
+
+
             Alpine.store('theme', {
                 init() {
                     const savedTheme = localStorage.getItem('theme');
@@ -76,6 +81,36 @@
                     }
                 }
             });
+
+            Alpine.store('modal', {
+                open: false,
+                type: null,
+                deleteForm: null,
+                isLoading: false, // <-- loader state
+
+                show(type) {
+                    this.type = type;
+                    this.open = true;
+                    const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+                    if (scrollBarWidth > 0) document.body.style.paddingRight = scrollBarWidth + 'px';
+                    document.body.classList.add('overflow-hidden');
+                },
+
+                hide() {
+                    this.open = false;
+                    this.type = null;
+                    this.deleteForm = null;
+                    this.isLoading = false; // reset loader saat modal tutup
+                    document.body.classList.remove('overflow-hidden');
+                    document.body.style.paddingRight = '';
+                },
+
+                submitWithLoader(form) {
+                    this.isLoading = true;
+                    form.submit();
+                }
+            });
+
         });
     </script>
 
@@ -98,7 +133,7 @@
 </head>
 
 <body
-    x-data="{ 'loaded': true}"
+    x-data="{ 'loaded': true, isModalOpen: false }"
     x-init="$store.sidebar.isExpanded = window.innerWidth >= 1280;
     const checkMobile = () => {
         if (window.innerWidth < 1280) {
@@ -128,14 +163,15 @@
             <!-- app header start -->
             @include('partials.owner.app-header')
             <!-- app header end -->
-            <div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
+            <div class="px-4 mx-auto md:p-6">
                 @yield('content')
             </div>
         </div>
 
     </div>
-
+    @stack('modals')
 </body>
+
 
 @stack('scripts')
 

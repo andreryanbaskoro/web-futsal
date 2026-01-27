@@ -1,7 +1,7 @@
  <!-- ==================== NAVBAR ==================== -->
  <nav class="navbar" id="navbar">
    <div class="container navbar-container">
-     <a href="{{ route('beranda') }}" class="navbar-brand">
+     <a href="{{ route('pelanggan.beranda') }}" class="navbar-brand">
        <i class="fas fa-futbol"></i>
        <span>Futsal ACR</span>
      </a>
@@ -48,7 +48,7 @@
 
          <ul class="profile-menu" id="profileMenu">
            <li>
-             <a href="#">
+             <a href="{{ route('pelanggan.profile.index') }}">
                <i class="fas fa-id-card"></i>
                Profil Saya
              </a>

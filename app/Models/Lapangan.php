@@ -22,11 +22,17 @@ class Lapangan extends Model
         'status',
         'dimensi',
         'kapasitas',
+        'image_type',
+        'image',
         'rating',
         'rating_count',
     ];
 
+
     public $timestamps = true;
+
+    protected $appends = ['image_url'];
+
 
     /* =======================
      * RELASI
@@ -75,5 +81,30 @@ class Lapangan extends Model
             'rating' => round($data->avg_rating ?? 0, 1),
             'rating_count' => $data->total ?? 0,
         ]);
+    }
+
+    public function getImageUrlAttribute()
+    {
+        // Kalau image kosong
+        if (empty($this->image)) {
+            return $this->defaultImage();
+        }
+
+        // Kalau image dari URL
+        if ($this->image_type === 'url') {
+            return $this->image;
+        }
+
+        // Kalau image hasil upload
+        if ($this->image_type === 'upload') {
+            return asset('storage/' . $this->image);
+        }
+
+        return $this->defaultImage();
+    }
+
+    protected function defaultImage()
+    {
+        return 'https://images.unsplash.com/photo-1575361204480-aadea25e6e68?w=400&q=80';
     }
 }

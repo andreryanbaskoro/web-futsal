@@ -47,13 +47,14 @@ $today = Carbon::now()->toDateString();
                 </div>
 
                 <div class="card p-xl" style="padding:24px;">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
                         <div>
                             <h3 style="margin:0 0 6px 0">Jadwal Tersedia</h3>
-                            <p style="color: #6b7280; font-size:13px; margin:0" id="scheduleInfo">Pilih lapangan & tanggal</p>
+                            <!-- Center the "Pilih lapangan & tanggal" text -->
+                            <p style="color: #6b7280; font-size:13px; margin:0; text-align:center;" id="scheduleInfo">Pilih lapangan & tanggal</p>
                         </div>
 
-                        <div style="display:flex;gap:10px; font-size:13px; align-items:center">
+                        <div style="display:flex; gap:10px; font-size:13px; align-items:center">
                             <span>
                                 <span style="display:inline-block;width:12px;height:12px;background:#10b981;border-radius:3px;margin-right:6px;vertical-align:middle"></span>
                                 Tersedia
@@ -70,19 +71,16 @@ $today = Carbon::now()->toDateString();
                                 <span style="display:inline-block;width:12px;height:12px;background:#9ca3af;border-radius:3px;margin-right:6px;vertical-align:middle"></span>
                                 Waktu Lewat
                             </span>
-
                         </div>
                     </div>
 
                     <div id="timeSlots" class="time-slots mt-lg">
-                        <div style="text-align:center;color:#6b7280;padding:34px 0">Pilih lapangan & tanggal</div>
+                        <!-- Center the "Pilih lapangan & tanggal" text in this section too -->
+                        <div style="text-align:center; color:#6b7280; padding:34px 0">Pilih lapangan & tanggal</div>
                     </div>
 
-                    <div class="alert alert-warning mt-lg" style="background: rgba(255, 215, 0, 0.06); border-left:4px solid #f59e0b; margin-top:16px; padding:12px;">
-                        <i class="fas fa-info-circle" style="margin-right:8px;color:#f59e0b"></i>
-                        <span>Harga dapat berbeda pada jam sibuk (16:00 - 22:00) dan akhir pekan.</span>
-                    </div>
                 </div>
+
             </div>
 
             <div class="card booking-summary" style="padding:24px;">
@@ -106,7 +104,7 @@ $today = Carbon::now()->toDateString();
                         <span class="value" id="sumDate">-</span>
                     </div>
                     <div class="summary-row">
-                        <span class="label">Jam</span>
+                        <span class="label" style="flex-shrink: 0; width: 70px;">Jam</span>
                         <span class="value" id="sumTime">-</span>
                     </div>
                     <div class="summary-row">
@@ -159,18 +157,22 @@ $today = Carbon::now()->toDateString();
         maximumFractionDigits: 0
     }).format(n);
 
-
-
     document.getElementById('checkBtn').onclick = async () => {
         const field = fieldSelect.value;
         const date = dateSelect.value;
 
         if (!field || !date) {
-            alert('Lengkapi pilihan');
+            Swal.fire({
+                icon: 'warning',
+                title: 'Lengkapi Pilihan',
+                text: 'Harap pilih lapangan dan tanggal terlebih dahulu.',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#3085d6'
+            });
             return;
         }
 
-        timeSlots.innerHTML = 'Loading...'; // Menampilkan loading saat menunggu data
+        timeSlots.innerHTML = 'Memuat jadwal...'; // Menampilkan loading saat menunggu data
         selectedSlots = [];
         totalPrice = 0;
         resetSummary();
@@ -203,37 +205,36 @@ $today = Carbon::now()->toDateString();
             el.classList.add('time-slot');
 
             el.innerHTML = `
-        <div class="time">${s.jam}</div>
-        <div class="price">${rupiah(s.harga)}</div>
-    `;
+                <div class="time">${s.jam}</div>
+                <div class="price">${rupiah(s.harga)}</div>
+            `;
 
             // Mark slot as booked
             if (s.booked) {
                 el.classList.add('booked');
                 el.innerHTML += `
-            <div style="margin-top:6px; font-size:11px; color:#ef4444; font-weight:600;">
-                <i class="fas fa-times-circle" style="color:#ef4444; margin-right:5px;"></i>Sudah dipesan
-            </div>
-        `;
+                    <div style="margin-top:6px; font-size:11px; color:#ef4444; font-weight:600;">
+                        <i class="fas fa-times-circle" style="color:#ef4444; margin-right:5px;"></i>Sudah dipesan
+                    </div>
+                `;
             }
             // Mark slot as past
             else if (s.past) {
                 el.classList.add('past');
                 el.innerHTML += `
-            <div style="margin-top:6px; font-size:11px; color:#9ca3af; font-weight:600;">
-                <i class="fas fa-clock" style="color:#9ca3af; margin-right:5px;"></i>Waktu Lewat
-            </div>
-        `;
+                    <div style="margin-top:6px; font-size:11px; color:#9ca3af; font-weight:600;">
+                        <i class="fas fa-clock" style="color:#9ca3af; margin-right:5px;"></i>Waktu Lewat
+                    </div>
+                `;
             }
-            // Available slot
             // Available slot
             else {
                 el.classList.add('available');
                 el.innerHTML += `
-        <div class="available-text" style="margin-top:6px; font-size:11px; color:#10b981; font-weight:600;">
-            <i class="fas fa-check-circle" style="color:#10b981; margin-right:5px;"></i>Tersedia
-        </div>
-    `;
+                    <div class="available-text" style="margin-top:6px; font-size:11px; color:#10b981; font-weight:600;">
+                        <i class="fas fa-check-circle" style="color:#10b981; margin-right:5px;"></i>Tersedia
+                    </div>
+                `;
 
                 // Jika sudah dipilih, ganti teks menjadi "Dipilih"
                 if (existingSlot) {
@@ -247,13 +248,10 @@ $today = Carbon::now()->toDateString();
                 el.addEventListener('click', () => toggle(el, s));
             }
 
-
             timeSlots.appendChild(el);
         });
 
     };
-
-
 
     function toggle(el, s) {
         if (s.booked || s.past) return;
@@ -270,8 +268,8 @@ $today = Carbon::now()->toDateString();
             selectedSlots.splice(index, 1);
 
             availableText.innerHTML = `
-            <i class="fas fa-check-circle"></i> Tersedia
-        `;
+                <i class="fas fa-check-circle"></i> Tersedia
+            `;
             availableText.style.color = '#10b981';
 
             updateSummary();
@@ -290,15 +288,12 @@ $today = Carbon::now()->toDateString();
         totalPrice += s.harga;
 
         availableText.innerHTML = `
-        <i class="fas fa-circle"></i> Dipilih
-    `;
+            <i class="fas fa-circle"></i> Dipilih
+        `;
         availableText.style.color = '#3b82f6';
 
         updateSummary();
     }
-
-
-
 
     function updateSummary() {
         if (!selectedSlots.length) {
@@ -322,16 +317,32 @@ $today = Carbon::now()->toDateString();
         sumTotal.innerText = rupiah(totalPrice);
     }
 
-
     function resetSummary() {
         summaryEmpty.style.display = 'block';
         summaryFilled.style.display = 'none';
     }
 
     document.getElementById('bookingBtn').onclick = async () => {
+        const bookingBtn = document.getElementById('bookingBtn');
+        bookingBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Proses Pemesanan...';
+        bookingBtn.disabled = true; // Menonaktifkan tombol agar tidak bisa diklik lagi
+
+        // Ini akan membuat tombol terlihat pudar ketika disabled
+        bookingBtn.classList.add('disabled');
 
         if (!selectedSlots.length) {
-            alert('Pilih slot terlebih dahulu');
+            Swal.fire({
+                icon: 'warning',
+                title: 'Pilih Slot Terlebih Dahulu',
+                text: 'Silakan pilih slot terlebih dahulu sebelum melanjutkan.',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#3085d6'
+            });
+
+            // Kembalikan tombol ke keadaan semula setelah ada peringatan
+            bookingBtn.innerHTML = 'Booking';
+            bookingBtn.disabled = false;
+            bookingBtn.classList.remove('disabled');
             return;
         }
 
@@ -349,33 +360,82 @@ $today = Carbon::now()->toDateString();
                         jam_mulai: s.jam_mulai,
                         jam_selesai: s.jam_selesai,
                         harga: s.harga,
-                        durasi_menit: s.durasi_menit // ⬅️ PENTING
+                        durasi_menit: s.durasi_menit
                     }))
                 })
-
-
             });
 
             const data = await res.json();
 
             if (!res.ok) {
-                // tunjukkan pesan error dari server jika ada
-                alert(data.error || 'Terjadi kesalahan saat booking');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.error || 'Terjadi kesalahan saat booking.',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#dc2626'
+                });
+
+                // Kembalikan tombol ke keadaan semula setelah error
+                bookingBtn.innerHTML = 'Booking';
+                bookingBtn.disabled = false;
+                bookingBtn.classList.remove('disabled');
                 return;
             }
 
             if (!data.kode) {
-                alert('Response server tidak mengembalikan kode pemesanan. Silakan coba lagi.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Kesalahan',
+                    text: 'Response server tidak mengembalikan kode pemesanan. Silakan coba lagi.',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#dc2626'
+                });
+
+                // Kembalikan tombol ke keadaan semula setelah error
+                bookingBtn.innerHTML = 'Booking';
+                bookingBtn.disabled = false;
+                bookingBtn.classList.remove('disabled');
                 return;
             }
 
+            // Simpan status booking berhasil di sessionStorage
+            sessionStorage.setItem('bookingCompleted', 'true');
             window.location.href = "{{ url('/pelanggan/booking-confirm') }}/" + data.kode;
         } catch (err) {
             console.error(err);
-            alert('Gagal menghubungi server. Periksa koneksi Anda.');
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal',
+                text: 'Gagal menghubungi server. Periksa koneksi Anda.',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#dc2626'
+            });
+
+            // Kembalikan tombol ke keadaan semula setelah error
+            bookingBtn.innerHTML = 'Booking';
+            bookingBtn.disabled = false;
+            bookingBtn.classList.remove('disabled');
         }
     };
 </script>
+
+<style>
+    /* CSS untuk tombol disabled */
+    button:disabled {
+        opacity: 0.5;
+        /* Mengurangi opacity agar tombol lebih pudar */
+        cursor: not-allowed;
+        /* Tidak bisa klik */
+        box-shadow: none;
+        /* Menghilangkan shadow pada tombol yang dinonaktifkan */
+        border: 1px solid #ccc;
+        /* Mengubah border menjadi abu-abu */
+        transition: opacity 0.3s ease, border 0.3s ease;
+        /* Efek transisi halus */
+    }
+</style>
+
 
 
 

@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Pemesanan;
 use App\Models\Jadwal;
 use App\Models\PemesananJadwal;
+use App\Models\Notification;
+use App\Models\Pengguna;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -14,7 +16,6 @@ use Illuminate\Validation\Rule;
 
 class BookingController extends Controller
 {
-
     /**
      * Buat pemesanan baru (PENDING).
      *
@@ -42,15 +43,13 @@ class BookingController extends Controller
         $slots      = $request->slots;
 
         try {
-            $pemesanan = DB::transaction(function () use ($idLapangan, $tanggal, $slots, $request) {
+            $pemesanan = DB::transaction(function () use ($idLapangan, $tanggal, $slots) {
 
                 // 1) Validasi konflik per slot terhadap jadwal yang SUDAH ADA (yang sudah dibayar)
                 foreach ($slots as $s) {
-                    // normalize waktu ke format H:i:s
                     $jamMulai = Carbon::createFromFormat('H:i', $s['jam_mulai'])->format('H:i:s');
                     $jamSelesai = Carbon::createFromFormat('H:i', $s['jam_selesai'])->format('H:i:s');
 
-                    // Overlap check: existing.jam_mulai < new.jam_selesai AND existing.jam_selesai > new.jam_mulai
                     $conflict = Jadwal::where('id_lapangan', $idLapangan)
                         ->whereDate('tanggal', $tanggal)
                         ->where(function ($q) use ($jamMulai, $jamSelesai) {
@@ -68,7 +67,7 @@ class BookingController extends Controller
                     }
                 }
 
-                // 2) Buat pemesanan pending
+                // 2) Buat pemesanan pending (kode unik)
                 $kode = null;
                 do {
                     $kode = 'PM' . Str::upper(Str::random(8));
@@ -78,13 +77,12 @@ class BookingController extends Controller
                     'id_pengguna'      => auth()->id(),
                     'id_lapangan'      => $idLapangan,
                     'kode_pemesanan'   => $kode,
-                    'total_bayar'      => 0, // akan diupdate
+                    'total_bayar'      => 0, // diupdate setelah simpan detail
                     'status_pemesanan' => Pemesanan::PENDING,
                     'expired_at'       => now()->addMinutes(30),
                 ]);
 
-                // 3) Simpan detail slot ke tabel pemesanan_jadwal (tanpa id_jadwal).
-                // Pastikan kolom jam_mulai, jam_selesai, harga, durasi_menit ada di tabel pemesanan_jadwal
+                // 3) Simpan detail slot ke tabel pemesanan_jadwal (tanpa id_jadwal)
                 $total = 0;
                 foreach ($slots as $s) {
                     $jamMulai = Carbon::createFromFormat('H:i', $s['jam_mulai'])->format('H:i:s');
@@ -108,9 +106,7 @@ class BookingController extends Controller
 
                     PemesananJadwal::create([
                         'id_pemesanan' => $pemesanan->id_pemesanan,
-                        // jangan isi id_jadwal di sini (NULL) — akan diisi saat pembayaran sukses membuat jadwal
                         'id_jadwal'    => null,
-                        // simpan slot sementara:
                         'tanggal'      => $tanggal,
                         'jam_mulai'    => $jamMulai,
                         'jam_selesai'  => $jamSelesai,
@@ -129,11 +125,36 @@ class BookingController extends Controller
                 return $pemesanan;
             });
 
+            // ---------- Notifications (only pending info) ----------
+            // Pastikan menggunakan enum yang valid: 'pemesanan', 'pembayaran', 'jadwal', 'sistem'
+            // Notifikasi user (pemesanan pending)
+            Notification::create([
+                'id_pengguna' => $pemesanan->id_pengguna,
+                'title'       => "Pemesanan dibuat: {$pemesanan->kode_pemesanan}",
+                'message'     => "Pemesanan {$pemesanan->kode_pemesanan} berhasil dibuat dan menunggu pembayaran.",
+                'type'        => 'pemesanan',
+                'data'        => ['id_pemesanan' => $pemesanan->id_pemesanan],
+                'url'         => "/pelanggan/booking-confirm/{$pemesanan->kode_pemesanan}",
+            ]);
+
+            // Notifikasi ke admin (pemesanan pending)
+            $adminIds = Pengguna::where('peran', 'admin')->pluck('id_pengguna')->toArray();
+            foreach ($adminIds as $adminId) {
+                Notification::create([
+                    'id_pengguna' => $adminId,
+                    'title'       => "Pemesanan baru (pending): {$pemesanan->kode_pemesanan}",
+                    'message'     => "Pengguna membuat pemesanan {$pemesanan->kode_pemesanan} (menunggu pembayaran).",
+                    'type'        => 'pemesanan',
+                    'data'        => ['id_pemesanan' => $pemesanan->id_pemesanan, 'user_id' => $pemesanan->id_pengguna],
+                    'url'         => "/admin/pemesanan/{$pemesanan->id_pemesanan}",
+                ]);
+            }
+
             return response()->json([
                 'kode' => $pemesanan->kode_pemesanan,
             ], 201);
         } catch (\Throwable $e) {
-            // di production sebaiknya log($e) dan kembalikan pesan generik
+            // production: log($e) dan kembalikan pesan generik
             return response()->json([
                 'error' => $e->getMessage()
             ], 500);
@@ -141,11 +162,91 @@ class BookingController extends Controller
     }
 
     /**
+     * Tandai pemesanan sebagai dibayar:
+     * - update status
+     * - buat jadwal nyata untuk setiap detail
+     * - update pemesanan_jadwal (simpan id_jadwal)
+     * - buat notifikasi untuk pengguna (dan admin)
+     */
+    public function markAsPaid(Pemesanan $pemesanan)
+    {
+        try {
+            DB::transaction(function () use ($pemesanan) {
+
+                // 1. Update status pemesanan
+                $pemesanan->update([
+                    'status_pemesanan' => Pemesanan::DIBAYAR,
+                ]);
+
+                // 2. Ambil semua detail slot
+                $details = PemesananJadwal::where('id_pemesanan', $pemesanan->id_pemesanan)
+                    ->orderBy('tanggal')
+                    ->orderBy('jam_mulai')
+                    ->get();
+
+                // 3. Buat jadwal REAL dan update setiap detail
+                foreach ($details as $detail) {
+                    if (! $detail->id_jadwal) {
+                        $jadwal = Jadwal::create([
+                            'id_lapangan' => $pemesanan->id_lapangan,
+                            'tanggal'     => $detail->tanggal,
+                            'jam_mulai'   => $detail->jam_mulai,
+                            'jam_selesai' => $detail->jam_selesai,
+                        ]);
+
+                        $detail->update([
+                            'id_jadwal' => $jadwal->id_jadwal,
+                        ]);
+
+                        // juga perbarui object koleksi agar nanti bisa dipakai untuk notifikasi
+                        $detail->id_jadwal = $jadwal->id_jadwal;
+                    }
+                }
+
+                // refresh relation data supaya kita punya detail terbaru
+                $pemesanan->load('detailJadwal');
+
+                // 4. Notifikasi untuk pengguna (pembayaran diterima + jadwal)
+                $slotsForNotif = $pemesanan->detailJadwal->map(function ($d) {
+                    return [
+                        'tanggal' => $d->tanggal,
+                        'jam_mulai' => $d->jam_mulai,
+                        'jam_selesai' => $d->jam_selesai,
+                        'id_jadwal' => $d->id_jadwal,
+                    ];
+                })->toArray();
+
+                Notification::create([
+                    'id_pengguna' => $pemesanan->id_pengguna,
+                    'title'       => "Pembayaran diterima: {$pemesanan->kode_pemesanan}",
+                    'message'     => "Pembayaran untuk pemesanan {$pemesanan->kode_pemesanan} telah diterima. Jadwal Anda sudah dikonfirmasi.",
+                    'type'        => 'pembayaran',
+                    'data'        => ['id_pemesanan' => $pemesanan->id_pemesanan, 'slots' => $slotsForNotif],
+                    'url'         => "/pelanggan/booking-history",
+                ]);
+
+                // 5. Notifikasi untuk semua admin (pemesanan dibayar)
+                $adminIds = Pengguna::where('peran', 'admin')->pluck('id_pengguna')->toArray();
+                foreach ($adminIds as $adminId) {
+                    Notification::create([
+                        'id_pengguna' => $adminId,
+                        'title'       => "Pemesanan dibayar: {$pemesanan->kode_pemesanan}",
+                        'message'     => "Pemesanan {$pemesanan->kode_pemesanan} telah dibayar oleh user ID {$pemesanan->id_pengguna}.",
+                        'type'        => 'pembayaran',
+                        'data'        => ['id_pemesanan' => $pemesanan->id_pemesanan],
+                        'url'         => "/admin/pemesanan/{$pemesanan->id_pemesanan}",
+                    ]);
+                }
+            });
+
+            return response()->json(['success' => true]);
+        } catch (\Throwable $e) {
+            // production: log($e) dan kembalikan pesan generik
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+    /**
      * Halaman konfirmasi booking (render data untuk pemesanan dengan kode)
-     *
-     * Metode ini akan membaca detail pada pemesanan_jadwal.
-     * Jika pemesanan_jadwal sudah terhubung ke jadwal (id_jadwal not null) -> gunakan jadwal sebenarnya.
-     * Jika belum, gunakan jam_mulai/jam_selesai yang disimpan di pemesanan_jadwal (pending).
      */
     public function bookingConfirm(string $kode)
     {
@@ -155,7 +256,6 @@ class BookingController extends Controller
             ->where('expired_at', '>', now())
             ->firstOrFail();
 
-        // Ambil detail pemesanan_jadwal, urut berdasarkan jam_mulai (pakai kolom yang ada di tabel)
         $details = PemesananJadwal::with('jadwal.lapangan')
             ->where('id_pemesanan', $pemesanan->id_pemesanan)
             ->orderBy('tanggal')
@@ -166,32 +266,25 @@ class BookingController extends Controller
             abort(404, 'Detail pemesanan tidak ditemukan.');
         }
 
-        // Ambil lapangan (prioritaskan relation jadwal jika ada, fallback ke relasi pemesanan)
         $first = $details->first();
         $lapangan = $first->jadwal->lapangan ?? ($pemesanan->lapangan ?? null);
 
-        // Ambil tanggal untuk ditampilkan — gunakan nilai tanggal yang disimpan (dari detail)
-        $tanggalVal = $first->tanggal; // ambil dari pemesanan_jadwal (PENDING)
+        $tanggalVal = $first->tanggal;
         $tanggalDisplay = Carbon::parse($tanggalVal)->translatedFormat('l, d F Y');
 
-
-        // Merge slot berurutan dengan cara aman — bekerja baik jika slot disimpan di pemesanan_jadwal (pending) atau terhubung ke jadwal
+        // Merge slot berurutan
         $mergedSlots = [];
         $current = null;
 
         foreach ($details as $d) {
-            // gunakan nilai dari jadwal jika ada, jika tidak gunakan kolom yang disimpan di pemesanan_jadwal
-            $jamMulaiRaw = $d->jadwal->jam_mulai ?? $d->jam_mulai;      // format 'HH:MM:SS' atau 'HH:MM'
+            $jamMulaiRaw = $d->jadwal->jam_mulai ?? $d->jam_mulai;
             $jamSelesaiRaw = $d->jadwal->jam_selesai ?? $d->jam_selesai;
 
-            // normalisasi ke 'HH:MM'
             $jamMulai = substr($jamMulaiRaw, 0, 5);
             $jamSelesai = substr($jamSelesaiRaw, 0, 5);
 
-            // durasi aman: prefer kolom durasi_menit yang sudah disimpan; jika tidak ada hitung dari jam
             $durasi = (int) ($d->durasi_menit ?? 0);
             if ($durasi <= 0) {
-                // hitung manual (aman terhadap lintas tengah malam)
                 [$mh, $mm] = array_map('intval', explode(':', substr($jamMulaiRaw, 0, 5)));
                 [$sh, $sm] = array_map('intval', explode(':', substr($jamSelesaiRaw, 0, 5)));
                 $startMin = $mh * 60 + $mm;
@@ -209,7 +302,6 @@ class BookingController extends Controller
                 continue;
             }
 
-            // jika berurutan (jam mulai item sekarang sama dengan jam akhir current) -> gabungkan
             if ($jamMulai === $current['end']) {
                 $current['end'] = $jamSelesai;
                 $current['durasi_menit'] += $durasi;
@@ -236,38 +328,6 @@ class BookingController extends Controller
         ]);
     }
 
-    public function markAsPaid(Pemesanan $pemesanan)
-    {
-        DB::transaction(function () use ($pemesanan) {
-
-            // 1. Update status pemesanan
-            $pemesanan->update([
-                'status_pemesanan' => Pemesanan::DIBAYAR,
-            ]);
-
-            // 2. Ambil semua detail slot
-            $details = PemesananJadwal::where('id_pemesanan', $pemesanan->id_pemesanan)
-                ->orderBy('tanggal')
-                ->orderBy('jam_mulai')
-                ->get();
-
-            foreach ($details as $detail) {
-
-                // 3. Buat jadwal REAL
-                $jadwal = Jadwal::create([
-                    'id_lapangan' => $pemesanan->id_lapangan,
-                    'tanggal'     => $detail->tanggal,
-                    'jam_mulai'   => $detail->jam_mulai,
-                    'jam_selesai' => $detail->jam_selesai,
-                ]);
-
-                // 4. Update pemesanan_jadwal → simpan id_jadwal
-                $detail->update([
-                    'id_jadwal' => $jadwal->id_jadwal,
-                ]);
-            }
-        });
-    }
 
 
     /**
@@ -276,7 +336,6 @@ class BookingController extends Controller
     public function bookingHistory()
     {
         $bookings = Pemesanan::with([
-            // pastikan relasi ini ada; detailJadwal mengembalikan pemesanan_jadwal
             'detailJadwal'
         ])
             ->where('id_pengguna', auth()->id())

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Lapangan;
+use App\Models\Pemesanan;
 
 class AuthController extends Controller
 {
@@ -13,8 +15,23 @@ class AuthController extends Controller
      */
     public function showLogin()
     {
+        // STATISTIK
+        $totalLapangan = Lapangan::where('status', 'aktif')->count();
+
+        $bookingBulanIni = Pemesanan::whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->count();
+
+        $ratingRataRata = round(
+            Lapangan::where('status', 'aktif')->avg('rating') ?? 0,
+            1
+        );
+
         return view('auth.login', [
-            'title' => 'Login'
+            'title' => 'Login',
+            'totalLapangan' => $totalLapangan,
+            'bookingBulanIni' => $bookingBulanIni,
+            'ratingRataRata' => $ratingRataRata,
         ]);
     }
 

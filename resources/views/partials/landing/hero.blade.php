@@ -21,18 +21,27 @@
        </div>
        <div class="hero-stats">
          <div class="stat-item">
-           <div class="stat-value">5+</div>
+           <div class="stat-value">
+             {{ $totalLapangan ?? 0 }}+
+           </div>
            <div class="stat-label">Lapangan Premium</div>
          </div>
+
          <div class="stat-item">
-           <div class="stat-value">1000+</div>
+           <div class="stat-value">
+             {{ number_format($bookingBulanIni ?? 0) }}+
+           </div>
            <div class="stat-label">Booking/Bulan</div>
          </div>
+
          <div class="stat-item">
-           <div class="stat-value">4.9</div>
+           <div class="stat-value">
+             {{ number_format($ratingRataRata ?? 0, 1) }}
+           </div>
            <div class="stat-label">Rating Pelanggan</div>
          </div>
        </div>
      </div>
+   </div>
    </div>
  </section>

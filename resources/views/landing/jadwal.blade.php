@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Cek Jadwal & Booking Lapangan')
+@section('title', 'Cek Jadwal & Booking Lapangan | Futsal ACR')
 
 @section('content')
 @php

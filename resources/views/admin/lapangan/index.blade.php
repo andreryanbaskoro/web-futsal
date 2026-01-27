@@ -6,7 +6,17 @@
     class="space-y-1"
     x-data="Table(@js($lapangan), {
         perPage: 10,
-        searchKeys: ['nama_lapangan','deskripsi','dimensi','kapasitas','rating','status','created_at']
+        searchKeys: [
+  'nama_lapangan',
+  'deskripsi',
+  'dimensi',
+  'kapasitas',
+  'rating',
+  'status',
+  'image',
+  'created_at'
+]
+
     })">
 
     {{-- FLASH MESSAGE --}}
@@ -49,28 +59,29 @@
                     <thead>
                         <tr class="border-y border-gray-200 dark:border-gray-700">
                             @php
-                                $columns = [
-                                    ['label' => 'No', 'key' => 'id_lapangan'],
-                                    ['label' => 'Lapangan', 'key' => 'nama_lapangan'],
-                                    ['label' => 'Deskripsi', 'key' => 'deskripsi'],
-                                    ['label' => 'Dimensi', 'key' => 'dimensi'],
-                                    ['label' => 'Kapasitas', 'key' => 'kapasitas'],
-                                    ['label' => 'Rating', 'key' => 'rating'],
-                                    ['label' => 'Status', 'key' => 'status'],
-                                    ['label' => 'Waktu', 'key' => 'created_at'],
-                                ];
+                            $columns = [
+                            ['label' => 'No', 'key' => 'id_lapangan'],
+                            ['label' => 'Gambar', 'key' => 'image'],
+                            ['label' => 'Lapangan', 'key' => 'nama_lapangan'],
+                            ['label' => 'Deskripsi', 'key' => 'deskripsi'],
+                            ['label' => 'Dimensi', 'key' => 'dimensi'],
+                            ['label' => 'Kapasitas', 'key' => 'kapasitas'],
+                            ['label' => 'Rating', 'key' => 'rating'],
+                            ['label' => 'Status', 'key' => 'status'],
+                            ['label' => 'Waktu', 'key' => 'created_at'],
+                            ];
                             @endphp
                             @foreach($columns as $col)
-                                <th
-                                    class="px-4 py-3 text-sm text-gray-500 text-left cursor-pointer"
-                                    @click="sortBy('{{ $col['key'] }}')"
-                                    data-sort="{{ $col['key'] }}">
-                                    {{ $col['label'] }}
-                                    <span x-show="sortKey === '{{ $col['key'] }}'" class="ml-1">
-                                        <template x-if="sortOrder === 'asc'">▲</template>
-                                        <template x-if="sortOrder === 'desc'">▼</template>
-                                    </span>
-                                </th>
+                            <th
+                                class="px-4 py-3 text-sm text-gray-500 text-left cursor-pointer"
+                                @click="sortBy('{{ $col['key'] }}')"
+                                data-sort="{{ $col['key'] }}">
+                                {{ $col['label'] }}
+                                <span x-show="sortKey === '{{ $col['key'] }}'" class="ml-1">
+                                    <template x-if="sortOrder === 'asc'">▲</template>
+                                    <template x-if="sortOrder === 'desc'">▼</template>
+                                </span>
+                            </th>
                             @endforeach
                             <th class="px-4 py-3 text-sm text-gray-500 text-end">Aksi</th>
                         </tr>
@@ -81,6 +92,17 @@
                             <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02]">
                                 {{-- NO --}}
                                 <td class="px-4 py-4 text-sm text-gray-500" x-text="(currentPage - 1) * perPage + index + 1"></td>
+
+                                {{-- GAMBAR --}}
+                                <td class="px-4 py-4">
+                                    <img
+                                        :src="item.image_type === 'upload'
+            ? `/storage/${item.image}`
+            : item.image"
+                                        class="h-12 w-16 rounded-lg object-cover border"
+                                        alt="Lapangan">
+                                </td>
+
 
                                 {{-- NAMA LAPANGAN --}}
                                 <td class="px-4 py-4">
@@ -136,7 +158,7 @@
                         </template>
 
                         <tr x-show="paginated.length === 0">
-                            <td colspan="9" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">
+                            <td colspan="10" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">
                                 Data lapangan tidak ditemukan
                             </td>
                         </tr>
