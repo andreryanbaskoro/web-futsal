@@ -38,7 +38,7 @@ class LapanganController extends Controller
 
             'image_type'    => 'required|in:upload,url',
             'image_file'    => 'required_if:image_type,upload|image|max:2048',
-            'image_url'     => 'required_if:image_type,url|url|max:255',
+            'image_url' => 'nullable|required_if:image_type,url|url|max:255',
         ], [
             'nama_lapangan.required' => 'Nama lapangan wajib diisi',
             'nama_lapangan.max'      => 'Nama lapangan maksimal 30 karakter',

@@ -55,6 +55,7 @@
         <input
             type="file"
             name="image_file"
+            :disabled="useUrl"
             accept="image/*"
             class="focus:border-ring-brand-300 shadow-theme-xs focus:file:ring-brand-300 h-11 w-full overflow-hidden rounded-lg border border-gray-300 bg-transparent text-sm text-gray-500 transition-colors
                    file:mr-5 file:border-collapse file:cursor-pointer file:rounded-l-lg file:border-0 file:border-r file:border-solid file:border-gray-200 file:bg-gray-50 file:py-3 file:pr-3 file:pl-3.5 file:text-sm file:text-gray-700
@@ -74,6 +75,7 @@
         <input
             type="url"
             name="image_url"
+            :disabled="!useUrl"
             value="{{ old('image_url', ($lapangan->image_type ?? '') === 'url' ? $lapangan->image : '') }}"
             placeholder="https://example.com/lapangan.jpg"
             class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
