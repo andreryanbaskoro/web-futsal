@@ -14,35 +14,6 @@
     </div>
 </section>
 
-<!-- Filter Section -->
-<!-- <section style="padding: var(--space-xl) 0; background: var(--color-gray-100);">
-    <div class="container">
-        <div class="flex justify-between items-center" style="flex-wrap: wrap; gap: var(--space-md);">
-            <div class="flex gap-md" style="flex-wrap: wrap;">
-                <select class="form-control form-select" style="width: auto; min-width: 150px;">
-                    <option value="">Semua Tipe</option>
-                    <option value="vinyl">Vinyl</option>
-                    <option value="rumput">Rumput Sintetis</option>
-                    <option value="parquet">Parquet</option>
-                </select>
-                <select class="form-control form-select" style="width: auto; min-width: 150px;">
-                    <option value="">Semua Status</option>
-                    <option value="available">Tersedia</option>
-                    <option value="limited">Hampir Penuh</option>
-                </select>
-            </div>
-            <div class="flex gap-md items-center">
-                <span style="color: var(--color-gray-600);">Urutkan:</span>
-                <select class="form-control form-select" style="width: auto; min-width: 150px;">
-                    <option value="popular">Paling Populer</option>
-                    <option value="price-low">Harga Terendah</option>
-                    <option value="price-high">Harga Tertinggi</option>
-                    <option value="rating">Rating Tertinggi</option>
-                </select>
-            </div>
-        </div>
-    </div>
-</section> -->
 
 <!-- Fields List -->
 <section class="section">
@@ -53,33 +24,145 @@
             $hargaTermurah = optional($lapangan->jamOperasional->first())->harga;
             @endphp
 
+            @php
+            $isAvailable = $lapangan->status === 'aktif';
+            @endphp
+
             <div
                 class="card field-card animate-fadeInUp"
-                style="display:flex;flex-direction:column;height:100%;">
-                <div class="card-image">
+                style="
+        display:flex;
+        flex-direction:column;
+        height:100%;
+        transition:.3s;
+        {{ !$isAvailable ? 'opacity:.7; filter:grayscale(.2);' : '' }}
+    ">
+                <div class="card-image" style="position:relative;">
                     @php
-                    // DEFAULT IMAGE (UNSPLASH)
+                    // DEFAULT IMAGE
                     $defaultImage = 'https://images.unsplash.com/photo-1575361204480-aadea25e6e68?w=600&q=80';
 
-                    $imageSrc = $lapangan->image
-                    ? asset('storage/' . $lapangan->image)
-                    : $defaultImage;
+                    if ($lapangan->image_type === 'upload' && !empty($lapangan->image)) {
+
+                    $imageSrc = asset('storage/' . $lapangan->image);
+
+                    } elseif ($lapangan->image_type === 'url' && !empty($lapangan->image)) {
+
+                    $imageSrc = $lapangan->image;
+
+                    } else {
+
+                    $imageSrc = $defaultImage;
+                    }
                     @endphp
 
                     <img
                         src="{{ $imageSrc }}"
                         alt="{{ $lapangan->nama_lapangan }}">
 
-
-                    @if ($lapangan->status === 'aktif')
-                    <span class="field-badge badge badge-success">
-                        <i class="fas fa-check-circle"></i> Tersedia
-                    </span>
-                    @else
-                    <span class="field-badge badge badge-warning">
-                        <i class="fas fa-clock"></i> Hampir Penuh
-                    </span>
+                    @if (!$isAvailable)
+                    <div
+                        style="
+        position:absolute;
+        inset:0;
+        background:rgba(0,0,0,.35);
+        border-radius:inherit;
+    ">
+                    </div>
                     @endif
+
+
+                    @php
+                    $status = strtolower($lapangan->status);
+
+                    $badge = match($status) {
+
+                    'aktif' => [
+                    'class' => 'badge-success',
+                    'icon' => 'fa-check-circle',
+                    'text' => 'Tersedia'
+                    ],
+
+                    'maintenance' => [
+                    'class' => 'badge-warning',
+                    'icon' => 'fa-tools',
+                    'text' => 'Maintenance'
+                    ],
+
+                    'perbaikan' => [
+                    'class' => 'badge-danger',
+                    'icon' => 'fa-wrench',
+                    'text' => 'Perbaikan'
+                    ],
+
+                    'event' => [
+                    'class' => 'badge-primary',
+                    'icon' => 'fa-calendar',
+                    'text' => 'Dipakai Event'
+                    ],
+
+                    default => [
+                    'class' => 'badge-secondary',
+                    'icon' => 'fa-info-circle',
+                    'text' => ucfirst($status)
+                    ]
+                    };
+                    @endphp
+
+                    @php
+                    $status = strtolower($lapangan->status);
+
+                    $badge = match($status) {
+
+                    'aktif' => [
+                    'bg' => '#16a34a',
+                    'icon' => 'fa-check-circle',
+                    'text' => 'Tersedia'
+                    ],
+
+                    'maintenance' => [
+                    'bg' => '#f59e0b',
+                    'icon' => 'fa-tools',
+                    'text' => 'Maintenance'
+                    ],
+
+                    'perbaikan' => [
+                    'bg' => '#dc2626',
+                    'icon' => 'fa-wrench',
+                    'text' => 'Perbaikan'
+                    ],
+
+                    'event' => [
+                    'bg' => '#2563eb',
+                    'icon' => 'fa-calendar',
+                    'text' => 'Dipakai Event'
+                    ],
+
+                    default => [
+                    'bg' => '#6b7280',
+                    'icon' => 'fa-info-circle',
+                    'text' => ucfirst($status)
+                    ]
+                    };
+                    @endphp
+
+                    <span
+                        class="field-badge"
+                        style="
+        background: {{ $badge['bg'] }};
+        color: white;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: 0 4px 10px rgba(0,0,0,.15);
+    ">
+                        <i class="fas {{ $badge['icon'] }}"></i>
+                        {{ $badge['text'] }}
+                    </span>
                 </div>
 
                 <div class="card-body" style="display:flex;flex-direction:column;flex:1;">
@@ -118,13 +201,25 @@
                             @endif
                         </div>
 
-                        <a
-                            href="{{ route('pelanggan.jadwal') }}"
+                        @if ($lapangan->status === 'aktif')
+
+                        <a href="{{ route('pelanggan.jadwal', ['id_lapangan' => $lapangan->id_lapangan]) }}"
                             class="btn btn-primary btn-sm">
                             <i class="fas fa-calendar-check me-1"></i>
                             Booking
                         </a>
 
+                        @else
+
+                        <button
+                            class="btn btn-secondary btn-sm"
+                            disabled
+                            style="cursor:not-allowed;opacity:.7;">
+                            <i class="fas fa-ban me-1"></i>
+                            Tidak Tersedia
+                        </button>
+
+                        @endif
                     </div>
                 </div>
             </div>

@@ -34,7 +34,7 @@ class LapanganController extends Controller
             'deskripsi'     => 'nullable|string',
             'dimensi'       => 'nullable|string|max:20',
             'kapasitas'     => 'nullable|string|max:20',
-            'status'        => 'required|in:aktif,nonaktif',
+            'status' => 'required|in:aktif,maintenance,perbaikan,event,nonaktif',
 
             'image_type'    => 'required|in:upload,url',
             'image_file'    => 'required_if:image_type,upload|image|max:2048',
@@ -111,7 +111,7 @@ class LapanganController extends Controller
             'deskripsi'     => 'nullable|string',
             'dimensi'       => 'nullable|string|max:20',
             'kapasitas'     => 'nullable|string|max:20',
-            'status'        => 'required|in:aktif,nonaktif',
+            'status' => 'required|in:aktif,maintenance,perbaikan,event,nonaktif',
 
             'image_type'    => 'required|in:upload,url',
             'image_file'    => 'nullable|image|max:2048',

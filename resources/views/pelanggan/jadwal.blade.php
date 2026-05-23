@@ -29,7 +29,25 @@ $today = Carbon::now()->toDateString();
                             <select id="fieldSelect" class="form-control">
                                 <option value="">-- Pilih Lapangan --</option>
                                 @foreach($lapangans as $lap)
-                                <option value="{{ $lap->id_lapangan }}">{{ $lap->nama_lapangan }} @if($lap->harga) - (Rp {{ number_format($lap->harga,0,',','.') }}/jam)@endif</option>
+                                @php
+                                $hargaTermurah = optional($lap->jamOperasional->first())->harga;
+                                @endphp
+
+                                <option
+                                    value="{{ $lap->id_lapangan }}"
+                                    @disabled($lap->status !== 'aktif')
+                                    @selected(isset($selectedLapanganId) && $selectedLapanganId == $lap->id_lapangan)
+                                    >
+                                    {{ $lap->nama_lapangan }}
+
+                                    @if($hargaTermurah)
+                                    - Rp {{ number_format($hargaTermurah,0,',','.') }}/jam
+                                    @endif
+
+                                    @if($lap->status !== 'aktif')
+                                    ({{ strtoupper($lap->status) }})
+                                    @endif
+                                </option>
                                 @endforeach
                             </select>
                         </div>
@@ -268,8 +286,8 @@ $today = Carbon::now()->toDateString();
             selectedSlots.splice(index, 1);
 
             availableText.innerHTML = `
-                <i class="fas fa-check-circle"></i> Tersedia
-            `;
+            <i class="fas fa-check-circle" style="color:#10b981; margin-right:5px;"></i>Tersedia
+        `;
             availableText.style.color = '#10b981';
 
             updateSummary();
@@ -280,6 +298,7 @@ $today = Carbon::now()->toDateString();
         const durasi = hitungDurasiMenit(s.jam_mulai, s.jam_selesai);
 
         el.classList.add('selected');
+
         selectedSlots.push({
             ...s,
             durasi_menit: durasi
@@ -287,9 +306,10 @@ $today = Carbon::now()->toDateString();
 
         totalPrice += s.harga;
 
+        // tetap tulisan tersedia, tapi border biru tetap aktif
         availableText.innerHTML = `
-            <i class="fas fa-circle"></i> Dipilih
-        `;
+        <i class="fas fa-check-circle" style="color:#3b82f6; margin-right:5px;"></i>Tersedia
+    `;
         availableText.style.color = '#3b82f6';
 
         updateSummary();
@@ -418,6 +438,12 @@ $today = Carbon::now()->toDateString();
             bookingBtn.classList.remove('disabled');
         }
     };
+
+    window.addEventListener('DOMContentLoaded', () => {
+        if (fieldSelect.value) {
+            checkBtn.click();
+        }
+    });
 </script>
 
 <style>

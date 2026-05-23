@@ -26,10 +26,42 @@ $today = Carbon::now()->toDateString();
                     <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end">
                         <div class="form-group" style="margin-bottom:0">
                             <label class="form-label">Lapangan</label>
+                            @if(!empty($selectedLapanganId))
+                            @php
+                            $selectedLapangan = $lapangans->firstWhere('id_lapangan', $selectedLapanganId);
+                            @endphp
+
+
+                            @endif
                             <select id="fieldSelect" class="form-control">
                                 <option value="">-- Pilih Lapangan --</option>
+
                                 @foreach($lapangans as $lap)
-                                <option value="{{ $lap->id_lapangan }}">{{ $lap->nama_lapangan }} @if($lap->harga) - (Rp {{ number_format($lap->harga,0,',','.') }}/jam)@endif</option>
+
+                                @php
+                                $hargaTermurah = optional(
+                                $lap->jamOperasional->first()
+                                )->harga;
+                                @endphp
+
+                                <option
+                                    value="{{ $lap->id_lapangan }}"
+                                    @disabled($lap->status !== 'aktif')
+                                    @selected(isset($selectedLapanganId) && $selectedLapanganId == $lap->id_lapangan)
+                                    >
+
+                                    {{ $lap->nama_lapangan }}
+
+                                    @if($hargaTermurah)
+                                    - Rp {{ number_format($hargaTermurah,0,',','.') }}/jam
+                                    @endif
+
+                                    @if($lap->status !== 'aktif')
+                                    ({{ strtoupper($lap->status) }})
+                                    @endif
+
+                                </option>
+
                                 @endforeach
                             </select>
                         </div>
@@ -78,10 +110,10 @@ $today = Carbon::now()->toDateString();
                         <div style="text-align:center;color:#6b7280;padding:34px 0">Pilih lapangan & tanggal</div>
                     </div>
 
-                    <div class="alert alert-warning mt-lg" style="background: rgba(255, 215, 0, 0.06); border-left:4px solid #f59e0b; margin-top:16px; padding:12px;">
+                    <!-- <div class="alert alert-warning mt-lg" style="background: rgba(255, 215, 0, 0.06); border-left:4px solid #f59e0b; margin-top:16px; padding:12px;">
                         <i class="fas fa-info-circle" style="margin-right:8px;color:#f59e0b"></i>
                         <span>Harga dapat berbeda pada jam sibuk (16:00 - 22:00) dan akhir pekan.</span>
-                    </div>
+                    </div> -->
                 </div>
             </div>
 
@@ -273,7 +305,7 @@ $today = Carbon::now()->toDateString();
             selectedSlots.splice(index, 1);
 
             availableText.innerHTML = `
-            <i class="fas fa-check-circle"></i> Tersedia
+            <i class="fas fa-check-circle" style="color:#10b981; margin-right:5px;"></i>Tersedia
         `;
             availableText.style.color = '#10b981';
 
@@ -292,8 +324,9 @@ $today = Carbon::now()->toDateString();
 
         totalPrice += s.harga;
 
+        // tetap tulisan "Tersedia", tapi border biru tetap dari class selected
         availableText.innerHTML = `
-        <i class="fas fa-circle"></i> Dipilih
+        <i class="fas fa-check-circle" style="color:#3b82f6; margin-right:5px;"></i>Tersedia
     `;
         availableText.style.color = '#3b82f6';
 
@@ -330,6 +363,13 @@ $today = Carbon::now()->toDateString();
         summaryEmpty.style.display = 'block';
         summaryFilled.style.display = 'none';
     }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const selectedField = fieldSelect.value;
+        if (selectedField) {
+            checkBtn.click();
+        }
+    });
 </script>
 
 

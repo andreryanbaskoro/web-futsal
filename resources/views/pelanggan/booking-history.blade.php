@@ -268,16 +268,16 @@
                                 class="btn btn-outline btn-outline-primary btn-sm">
                                 <i class="fas fa-eye"></i> Detail
                             </a>
-
+<!-- 
                             <a href="{{ route('pelanggan.jadwal') }}"
                                 class="btn btn-primary btn-sm">
                                 Booking Lagi
-                            </a>
+                            </a> -->
 
                             @if($pemesanan->status_pemesanan === 'pending')
                             <a href="{{ route('pelanggan.booking.confirm', $pemesanan->kode_pemesanan) }}"
                                 class="btn btn-primary-blue btn-sm">
-                                Konfirmasi
+                                Konfirmasi Pembayaran
                             </a>
                             @endif
                         </div>

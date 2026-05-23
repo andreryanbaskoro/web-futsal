@@ -13,13 +13,18 @@ use Carbon\Carbon;
 
 class JadwalController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $lapangans = Lapangan::where('status', 'aktif')
+        $lapangans = Lapangan::where('status', '!=', 'nonaktif')
+            ->with(['jamOperasional' => function ($q) {
+                $q->orderBy('harga', 'asc');
+            }])
             ->orderBy('nama_lapangan')
             ->get();
 
-        return view('pelanggan.jadwal', compact('lapangans'));
+        $selectedLapanganId = $request->query('id_lapangan');
+
+        return view('pelanggan.jadwal', compact('lapangans', 'selectedLapanganId'));
     }
 
     public function slots(Request $request)

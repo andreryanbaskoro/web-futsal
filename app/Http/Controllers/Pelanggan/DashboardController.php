@@ -19,19 +19,19 @@ class DashboardController extends Controller
     public function index()
     {
         // HERO STATS
-        $totalLapangan = Lapangan::where('status', 'aktif')->count();
+        $totalLapangan = Lapangan::where('status', '!=', 'nonaktif')->count();
 
         $bookingBulanIni = Pemesanan::whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->count();
 
         $ratingRataRata = round(
-            Lapangan::where('status', 'aktif')->avg('rating') ?? 0,
+            Lapangan::where('status', '!=', 'nonaktif')->avg('rating') ?? 0,
             1
         );
 
         // === FIELDS SECTION ===
-        $lapanganList = Lapangan::where('status', 'aktif')
+        $lapanganList = Lapangan::where('status', '!=', 'nonaktif')
             ->with(['jamOperasional' => function ($q) {
                 $q->orderBy('harga', 'asc');
             }])

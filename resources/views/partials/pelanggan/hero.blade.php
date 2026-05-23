@@ -26,7 +26,7 @@
            <div class="stat-value">
              {{ $totalLapangan }}+
            </div>
-           <div class="stat-label">Lapangan Premium</div>
+           <div class="stat-label">Lapangan</div>
          </div>
 
          <div class="stat-item">

@@ -20,19 +20,19 @@ class LandingController extends Controller
     public function beranda()
     {
         // HERO STATS
-        $totalLapangan = Lapangan::where('status', 'aktif')->count();
+        $totalLapangan = Lapangan::where('status', '!=', 'nonaktif')->count();
 
         $bookingBulanIni = Pemesanan::whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->count();
 
         $ratingRataRata = round(
-            Lapangan::where('status', 'aktif')->avg('rating') ?? 0,
+            Lapangan::where('status', '!=', 'nonaktif')->avg('rating') ?? 0,
             1
         );
 
         // === FIELDS SECTION ===
-        $lapanganList = Lapangan::where('status', 'aktif')
+        $lapanganList = Lapangan::where('status', '!=', 'nonaktif')
             ->with(['jamOperasional' => function ($q) {
                 $q->orderBy('harga', 'asc');
             }])
@@ -72,7 +72,7 @@ class LandingController extends Controller
 
     public function lapangan()
     {
-        $lapanganList = Lapangan::aktif()
+        $lapanganList = Lapangan::where('status', '!=', 'nonaktif')
             ->with(['jamOperasional' => function ($q) {
                 $q->orderBy('harga', 'asc');
             }])
@@ -91,13 +91,21 @@ class LandingController extends Controller
 
 
 
-    public function jadwal()
+    public function jadwal(Request $request)
     {
-        $lapangans = Lapangan::where('status', 'aktif')
+        $lapangans = Lapangan::where('status', '!=', 'nonaktif')
+            ->with(['jamOperasional' => function ($q) {
+                $q->orderBy('harga', 'asc');
+            }])
             ->orderBy('nama_lapangan')
             ->get();
 
-        return view('landing.jadwal', compact('lapangans'));
+        $selectedLapanganId = $request->id_lapangan;
+
+        return view('landing.jadwal', compact(
+            'lapangans',
+            'selectedLapanganId'
+        ));
     }
 
     public function slots(Request $request)
@@ -242,7 +250,7 @@ class LandingController extends Controller
             ->with('success', 'Pesan berhasil dikirim. Terima kasih!');
     }
 
-   
+
 
 
 

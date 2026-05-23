@@ -10,7 +10,7 @@
     {{-- FORM --}}
     <form
         x-ref="jamOperasionalForm"
-        action="{{ route('admin.jam_operasional.update', $jamOperasional->id_operasional) }}"
+        action="{{ route('admin.jam-operasional.update', $jamOperasional->id_operasional) }}"
         method="POST">
         @csrf
         @method('PUT')

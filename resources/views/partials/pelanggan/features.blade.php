@@ -11,7 +11,7 @@
          <div class="feature-icon">
            <i class="fas fa-trophy"></i>
          </div>
-         <h3>Lapangan Premium</h3>
+         <h3>Lapangan</h3>
          <p>Rumput sintetis berkualitas tinggi dengan standar internasional dan pencahayaan optimal</p>
        </div>
        <div class="feature-card animate-fadeInUp stagger-2">

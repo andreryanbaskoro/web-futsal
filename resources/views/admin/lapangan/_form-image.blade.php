@@ -66,7 +66,7 @@
         @if(isset($lapangan) && ($lapangan->image_type ?? '') === 'upload')
         <img
             src="{{ asset('storage/' . $lapangan->image) }}"
-            class="mt-2 h-32 rounded-lg border object-cover">
+            class="mt-2 h-20 w-32 rounded-lg border object-cover">
         @endif
     </div>
 
@@ -84,7 +84,7 @@
         @if(isset($lapangan) && ($lapangan->image_type ?? '') === 'url')
         <img
             src="{{ $lapangan->image }}"
-            class="mt-2 h-32 rounded-lg border object-cover">
+            class="mt-2 h-20 w-32 rounded-lg border object-cover">
         @endif
     </div>
 

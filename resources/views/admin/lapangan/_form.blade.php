@@ -82,41 +82,47 @@
         @include('admin.lapangan._form-image')
 
 
-        {{-- STATUS (TOGGLE) --}}
-        @php
-        $statusAktif = old('status', $lapangan->status ?? 'aktif') === 'aktif';
-        @endphp
-
-        <div x-data="{ switcherToggle: {{ $statusAktif ? 'true' : 'false' }} }">
-            <label
-                class="flex cursor-pointer items-center gap-3 text-sm font-medium
-                       text-gray-700 select-none dark:text-gray-400">
-                <div class="relative">
-                    <input
-                        type="checkbox"
-                        class="sr-only"
-                        :checked="switcherToggle"
-                        @change="switcherToggle = !switcherToggle" />
-
-                    {{-- value yang dikirim ke backend --}}
-                    <input type="hidden" name="status" :value="switcherToggle ? 'aktif' : 'nonaktif'">
-
-                    <div
-                        class="block h-6 w-11 rounded-full"
-                        :class="switcherToggle
-                            ? 'bg-brand-500 dark:bg-brand-500'
-                            : 'bg-gray-200 dark:bg-white/10'">
-                    </div>
-
-                    <div
-                        class="shadow-theme-sm absolute top-0.5 left-0.5 h-5 w-5
-                               rounded-full bg-white duration-300 ease-linear"
-                        :class="switcherToggle ? 'translate-x-full' : 'translate-x-0'">
-                    </div>
-                </div>
-
-                <span x-text="switcherToggle ? 'Aktif' : 'Nonaktif'"></span>
+        {{-- STATUS --}}
+        <div>
+            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Status Lapangan
             </label>
+
+            <select
+                name="status"
+                required
+                class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10
+               dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300
+               bg-transparent px-4 py-2.5 text-sm text-gray-800
+               focus:ring-3 focus:outline-hidden
+               dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
+
+                <option value="aktif"
+                    {{ old('status', $lapangan->status ?? 'aktif') == 'aktif' ? 'selected' : '' }}>
+                    Aktif (Lapangan dapat dibooking)
+                </option>
+
+                <option value="maintenance"
+                    {{ old('status', $lapangan->status ?? '') == 'maintenance' ? 'selected' : '' }}>
+                    Maintenance (Sedang pemeliharaan)
+                </option>
+
+                <option value="perbaikan"
+                    {{ old('status', $lapangan->status ?? '') == 'perbaikan' ? 'selected' : '' }}>
+                    Perbaikan (Sedang diperbaiki)
+                </option>
+
+                <option value="event"
+                    {{ old('status', $lapangan->status ?? '') == 'event' ? 'selected' : '' }}>
+                    Event (Dipakai acara/turnamen)
+                </option>
+
+                <option value="nonaktif"
+                    {{ old('status', $lapangan->status ?? '') == 'nonaktif' ? 'selected' : '' }}>
+                    Nonaktif (Tidak digunakan)
+                </option>
+
+            </select>
         </div>
 
     </div>

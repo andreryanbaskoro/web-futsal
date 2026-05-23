@@ -17,7 +17,7 @@ class LapanganController extends Controller
      */
     public function index()
     {
-        $lapanganList = Lapangan::aktif()
+        $lapanganList = Lapangan::where('status', '!=', 'nonaktif')
             ->with(['jamOperasional' => function ($q) {
                 $q->orderBy('harga', 'asc');
             }])
