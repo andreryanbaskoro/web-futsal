@@ -187,6 +187,7 @@ Route::middleware(['auth', 'role:admin'])
 use App\Http\Controllers\Owner\{
     DashboardController as OwnerDashboard,
     LaporanJadwalController as OwnerLaporanJadwal,
+    LaporanTransaksiController as OwnerLaporanTransaksi,
     LaporanPemesananController as OwnerLaporanPemesanan,
     ProfileController as OwnerProfile
 };
@@ -207,12 +208,21 @@ Route::middleware('auth')
         Route::get('/laporan-jadwal/export', [OwnerLaporanJadwal::class, 'exportExcel'])
             ->name('laporan.jadwal.export');
 
+        // ================= LAPORAN TRANSAKSI =================
+        Route::get('/laporan-transaksi', [OwnerLaporanTransaksi::class, 'index'])
+            ->name('laporan.transaksi');
+
+        Route::get('/laporan-transaksi/export', [OwnerLaporanTransaksi::class, 'exportExcel'])
+            ->name('laporan.transaksi.export');
+
         // ================= LAPORAN PEMESANAN =================
         Route::get('/laporan-pemesanan', [OwnerLaporanPemesanan::class, 'index'])
             ->name('laporan.pemesanan');
 
         Route::get('/laporan-pemesanan/export', [OwnerLaporanPemesanan::class, 'exportExcel'])
             ->name('laporan.pemesanan.export');
+
+
 
         // ================= PROFILE =================
         Route::get('/profile', [OwnerProfile::class, 'index'])
@@ -269,7 +279,7 @@ Route::prefix('pelanggan')
             [BookingController::class, 'bookingHistoryDetail']
         )->name('booking.history.detail');
         Route::post('/booking/rating/{kode}', [BookingController::class, 'giveRating'])->name('booking.rating');
-        
+
 
 
 

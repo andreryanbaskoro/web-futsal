@@ -72,7 +72,12 @@ class MenuHelper
     {
         return [
             ['icon' => 'fa-solid fa-house', 'name' => 'Dashboard', 'path' => '/owner/dashboard'],
-            ['icon' => 'fa-solid fa-calendar-check', 'name' => 'Laporan Jadwal Lapangan', 'path' => '/owner/laporan-jadwal'],
+            // ['icon' => 'fa-solid fa-calendar-check', 'name' => 'Laporan Jadwal Lapangan', 'path' => '/owner/laporan-jadwal'],
+            [
+                'icon' => 'fa-solid fa-money-bill-trend-up',
+                'name' => 'Laporan Transaksi',
+                'path' => '/owner/laporan-transaksi'
+            ],
             ['icon' => 'fa-solid fa-clipboard', 'name' => 'Laporan Pemesanan', 'path' => '/owner/laporan-pemesanan'],
         ];
     }

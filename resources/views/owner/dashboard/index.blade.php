@@ -1,6 +1,6 @@
 @extends('layouts.owner')
 
-@section('title', 'Dashboard Owner')
+@section('title', 'Dashboard Owner - Futsal ACR')
 
 @section('content')
 <div class="space-y-6">
@@ -11,7 +11,7 @@
             Dashboard Owner
         </h1>
     </div>
-<!-- 
+    <!-- 
     {{-- STATISTIK --}}
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
@@ -86,7 +86,7 @@
     {{-- QUICK ACCESS --}}
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
 
-        {{-- LAPORAN JADWAL --}}
+        <!-- {{-- LAPORAN JADWAL --}}
         <a href="{{ route('owner.laporan.jadwal') }}"
             class="group rounded-2xl border border-gray-200 bg-white p-6
                   transition hover:border-blue-500 hover:shadow-lg">
@@ -103,6 +103,35 @@
                     </h3>
                     <p class="mt-1 text-sm text-gray-500">
                         Lihat jadwal pemakaian lapangan per tanggal
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-4 flex items-center justify-between">
+                <span class="text-sm font-medium text-blue-600">
+                    Lihat Laporan
+                </span>
+                <i class="fas fa-arrow-right text-blue-500"></i>
+            </div>
+        </a> -->
+
+        {{-- LAPORAN TRANSAKSI --}}
+        <a href="{{ route('owner.laporan.transaksi') }}"
+            class="group rounded-2xl border border-gray-200 bg-white p-6
+                  transition hover:border-blue-500 hover:shadow-lg">
+
+            <div class="flex items-center gap-4">
+                <div class="flex h-14 w-14 items-center justify-center rounded-xl
+                            bg-blue-50 text-blue-600 group-hover:bg-blue-500 group-hover:text-white">
+                    <i class="fas fa-calendar-alt text-2xl"></i>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 group-hover:text-blue-600">
+                        Laporan Transaksi
+                    </h3>
+                    <p class="mt-1 text-sm text-gray-500">
+                        Lihat data transaksi per periode (harian, bulanan, tahunan, custom)
                     </p>
                 </div>
             </div>
