@@ -34,7 +34,15 @@ class PaymentController extends Controller
             ->where('status_pemesanan', 'pending')
             ->firstOrFail();
 
-        // 🔥 ORDER ID HARUS STABIL
+        // Cek apakah sudah pernah dibuat snap token
+        $pembayaran = Pembayaran::where('id_pemesanan', $pemesanan->id_pemesanan)->first();
+
+        if ($pembayaran && !empty($pembayaran->snap_token)) {
+            return response()->json([
+                'snap_token' => $pembayaran->snap_token
+            ]);
+        }
+
         $orderId = 'ORDER-' . $pemesanan->kode_pemesanan;
 
         $params = [
@@ -50,7 +58,6 @@ class PaymentController extends Controller
 
         $snapToken = Snap::getSnapToken($params);
 
-        // 🔥 CEGAH DUPLIKASI PEMBAYARAN
         Pembayaran::updateOrCreate(
             ['id_pemesanan' => $pemesanan->id_pemesanan],
             [
