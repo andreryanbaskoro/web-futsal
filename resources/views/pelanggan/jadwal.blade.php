@@ -2,6 +2,36 @@
 
 @section('title', 'Cek Jadwal & Booking Lapangan')
 
+@push('styles')
+<style>
+    .jadwal-layout {
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        gap: 32px;
+    }
+    .filter-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr auto;
+        gap: 12px;
+        align-items: end;
+    }
+    @media (max-width: 992px) {
+        .jadwal-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+    @media (max-width: 768px) {
+        .filter-grid {
+            grid-template-columns: 1fr;
+            align-items: stretch;
+        }
+        .filter-grid .btn {
+            margin-top: 8px;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
 @php
 use Carbon\Carbon;
@@ -18,12 +48,12 @@ $today = Carbon::now()->toDateString();
 
 <section class="section">
     <div class="container">
-        <div style="display:grid;grid-template-columns:1fr 360px;gap:32px">
+        <div class="jadwal-layout">
 
             <div>
                 <div class="card p-xl mb-xl" style="padding:24px;">
                     <h3 style="margin-bottom:12px">Pilih Lapangan & Tanggal</h3>
-                    <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end">
+                    <div class="filter-grid">
                         <div class="form-group" style="margin-bottom:0">
                             <label class="form-label">Lapangan</label>
                             <select id="fieldSelect" class="form-control">
