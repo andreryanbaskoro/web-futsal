@@ -2,6 +2,71 @@
 
 @section('title', 'Riwayat Pemesanan - Futsal ACR')
 
+@push('styles')
+<style>
+    .history-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: var(--space-2xl);
+    }
+    .booking-card-grid {
+        display: grid;
+        grid-template-columns: 120px 1fr 200px;
+        gap: var(--space-lg);
+        align-items: flex-start;
+    }
+    .booking-img-container {
+        width: 120px;
+        height: 90px;
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        background: #e5e7eb;
+    }
+    .booking-img-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .booking-actions-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
+    }
+    @media (max-width: 992px) {
+        .history-layout {
+            grid-template-columns: 1fr;
+        }
+        .user-sidebar {
+            position: static !important;
+            margin-bottom: var(--space-lg);
+        }
+    }
+    @media (max-width: 768px) {
+        .booking-card-grid {
+            grid-template-columns: 1fr;
+        }
+        .booking-img-container {
+            width: 100%;
+            height: 180px;
+        }
+        .booking-card-header {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 12px;
+        }
+        .booking-actions-grid {
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+        .booking-actions-grid .btn, .booking-actions-grid .badge {
+            flex: 1;
+            text-align: center;
+        }
+    }
+</style>
+@endpush
+
 
 @section('content')
 <!-- Page Header -->
@@ -15,7 +80,7 @@
 
 <section style="padding: 40px 0 40px; background: var(--color-gray-100); min-height: 100vh;">
     <div class="container">
-        <div style="display: grid; grid-template-columns: 280px 1fr; gap: var(--space-2xl);">
+        <div class="history-layout">
             <!-- User Sidebar -->
             <div>
                 <div class="user-sidebar" style="background: var(--color-white); border-radius: var(--radius-xl); box-shadow: var(--shadow-card); padding: var(--space-xl); position: sticky; top: 100px;">
@@ -143,25 +208,16 @@
                     </div>
 
 
-                    <div class="booking-card-body"
-                        style="padding: var(--space-lg);
-            display: grid;
-            grid-template-columns: 120px 1fr 200px;
-            gap: var(--space-lg);
-            align-items: flex-start;">
+                    <div class="booking-card-body booking-card-grid" style="padding: var(--space-lg);">
 
                         {{-- LEFT : IMAGE --}}
                         <div>
                             @if($lapangan)
-                            <img src="{{ $lapangan->image_url }}"
-                                alt="Lapangan {{ $lapangan->nama_lapangan }}"
-                                style="width:120px;height:90px;
-                        border-radius:var(--radius-md);
-                        object-fit:cover;">
+                            <div class="booking-img-container">
+                                <img src="{{ $lapangan->image_url }}" alt="Lapangan {{ $lapangan->nama_lapangan }}">
+                            </div>
                             @else
-                            <div style="width:120px;height:90px;
-                        background:#e5e7eb;
-                        border-radius:var(--radius-md);"></div>
+                            <div class="booking-img-container"></div>
                             @endif
                         </div>
 
@@ -235,11 +291,7 @@
                         </div>
 
                         {{-- RIGHT : ACTIONS --}}
-                        <div class="booking-actions"
-                            style="display:flex;
-    flex-direction:column;
-    gap:8px;
-    align-items:stretch;">
+                        <div class="booking-actions booking-actions-grid">
 
                             @if($pemesanan->status_pemesanan === 'dibayar')
                             @if(!$pemesanan->ulasan)
