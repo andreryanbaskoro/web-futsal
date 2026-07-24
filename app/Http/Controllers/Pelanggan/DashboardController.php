@@ -56,6 +56,14 @@ class DashboardController extends Controller
         $totalArticle = Article::count();
         $articleRemaining = max($totalArticle - $articleList->count(), 0);
 
+        // === TESTIMONIALS SECTION ===
+        $ulasanList = Ulasan::with('pengguna')
+            ->whereNotNull('komentar')
+            ->where('komentar', '!=', '')
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
         return view('pelanggan.beranda', compact(
             'totalLapangan',
             'bookingBulanIni',
@@ -64,7 +72,8 @@ class DashboardController extends Controller
             'galleryList',
             'galleryRemaining',
             'articleList',
-            'articleRemaining'
+            'articleRemaining',
+            'ulasanList'
         ));
     }
 }

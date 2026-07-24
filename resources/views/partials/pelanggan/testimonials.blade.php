@@ -7,32 +7,61 @@
       <p style="color: rgba(255,255,255,0.7);">Dengarkan pengalaman pelanggan kami bermain di FUSTAL ACR</p>
     </div>
     <div class="testimonial-slider">
-      <div class="testimonial-card" id="testimonial-1">
+      @forelse ($ulasanList as $index => $ulasan)
+      <div class="testimonial-card" id="testimonial-pelanggan-{{ $index + 1 }}" style="{{ $index > 0 ? 'display: none;' : '' }}">
         <p class="testimonial-quote">
-          Lapangan bersih, rumput bagus, dan booking sangat mudah! Gak perlu telepon-telepon, langsung booking dari HP. Recommended banget untuk yang mau main futsal bareng teman!
+          {{ $ulasan->komentar }}
         </p>
         <div class="testimonial-author">
           <div class="testimonial-avatar">
-            <img src="https://i.pravatar.cc/100?img=11" alt="Ahmad Fadillah">
+            <img src="https://ui-avatars.com/api/?name={{ urlencode($ulasan->pengguna->nama_lengkap ?? 'User') }}&background=random" alt="{{ $ulasan->pengguna->nama_lengkap ?? 'User' }}">
           </div>
           <div class="testimonial-info">
-            <div class="testimonial-name">Ahmad Fadillah</div>
-            <div class="testimonial-role">Tim Futsal Garuda FC</div>
+            <div class="testimonial-name">{{ $ulasan->pengguna->nama_lengkap ?? 'Pengguna' }}</div>
+            <div class="testimonial-role">{{ \Carbon\Carbon::parse($ulasan->created_at)->translatedFormat('d F Y, H:i') }}</div>
             <div class="testimonial-rating">
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
+              @for($i = 1; $i <= 5; $i++)
+                @if($i <= $ulasan->rating)
+                  <i class="fas fa-star" style="color: #facc15;"></i>
+                @else
+                  <i class="fas fa-star" style="color: #e5e7eb;"></i>
+                @endif
+              @endfor
             </div>
           </div>
         </div>
       </div>
-      <div class="testimonial-nav">
-        <span class="testimonial-dot active" data-slide="1"></span>
-        <span class="testimonial-dot" data-slide="2"></span>
-        <span class="testimonial-dot" data-slide="3"></span>
+      @empty
+      <div class="testimonial-card" id="testimonial-pelanggan-1">
+        <p class="testimonial-quote" style="text-align: center;">
+          Belum ada ulasan dari pelanggan. Jadilah yang pertama memberikan ulasan setelah bermain!
+        </p>
       </div>
+      @endforelse
+
+      @if($ulasanList->count() > 1)
+      <div class="testimonial-nav">
+        @foreach($ulasanList as $index => $ulasan)
+        <span class="testimonial-dot {{ $index == 0 ? 'active' : '' }}" data-slide="{{ $index + 1 }}" onclick="showTestimonialPelanggan({{ $index + 1 }})" style="cursor: pointer;"></span>
+        @endforeach
+      </div>
+      <script>
+        function showTestimonialPelanggan(index) {
+            document.querySelectorAll('.testimonial-slider .testimonial-card').forEach(card => {
+                card.style.display = 'none';
+            });
+            document.querySelectorAll('.testimonial-slider .testimonial-dot').forEach(dot => {
+                dot.classList.remove('active');
+            });
+            
+            const targetCard = document.getElementById('testimonial-pelanggan-' + index);
+            if (targetCard) targetCard.style.display = 'block';
+            
+            const targetDot = document.querySelector(`.testimonial-slider .testimonial-dot[data-slide="${index}"]`);
+            if (targetDot) targetDot.classList.add('active');
+        }
+      </script>
+      @endif
     </div>
   </div>
 </section>
