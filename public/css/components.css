@@ -347,9 +347,7 @@
 .hero-content {
     position: relative;
     z-index: 1;
-    max-width: 800px;
-    margin: 0 auto;
-    text-align: center;
+    max-width: 700px;
     color: var(--color-white);
 }
 
@@ -380,28 +378,28 @@
 .hero-subtitle {
     font-size: var(--text-lg);
     color: rgba(255, 255, 255, 0.8);
-    margin: 0 auto var(--space-2xl);
-    max-width: 600px;
+    margin-bottom: var(--space-2xl);
+    max-width: 550px;
 }
 
 .hero-cta {
     display: flex;
-    justify-content: center;
     gap: var(--space-md);
     flex-wrap: wrap;
 }
 
 .hero-stats {
     display: flex;
-    justify-content: center;
     gap: var(--space-2xl);
     margin-top: var(--space-3xl);
     padding-top: var(--space-2xl);
     border-top: 1px solid rgba(255, 255, 255, 0.1);
+    flex-wrap: wrap;
 }
 
 .stat-item {
-    text-align: center;
+    text-align: left;
+    min-width: max-content;
 }
 
 .stat-value {
