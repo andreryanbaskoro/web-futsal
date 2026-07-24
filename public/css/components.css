@@ -328,6 +328,7 @@
     align-items: center;
     background: var(--gradient-hero);
     overflow: hidden;
+    padding-top: 120px;
 }
 
 .hero-bg {
