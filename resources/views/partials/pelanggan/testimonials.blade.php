@@ -40,23 +40,38 @@
         <span class="testimonial-dot {{ $index == 0 ? 'active' : '' }}" data-slide="{{ $index + 1 }}" onclick="showTestimonialPelanggan({{ $index + 1 }})" style="cursor: pointer;"></span>
         @endforeach
       </div>
+      @endif
       <script>
+        let currentTestimonialPelanggan = 1;
+        const totalTestimonialsPelanggan = {{ $ulasanList->count() }};
+
         function showTestimonialPelanggan(index) {
-            document.querySelectorAll('.testimonial-slider .testimonial-card').forEach(card => {
+            currentTestimonialPelanggan = index;
+            document.querySelectorAll('#testimonials .testimonial-card').forEach(card => {
                 card.style.display = 'none';
+                card.classList.remove('fade-in-slider');
             });
-            document.querySelectorAll('.testimonial-slider .testimonial-dot').forEach(dot => {
+            document.querySelectorAll('#testimonials .testimonial-dot').forEach(dot => {
                 dot.classList.remove('active');
             });
             
             const targetCard = document.getElementById('testimonial-pelanggan-' + index);
-            if (targetCard) targetCard.style.display = 'block';
+            if (targetCard) {
+                targetCard.style.display = 'block';
+                void targetCard.offsetWidth;
+                targetCard.classList.add('fade-in-slider');
+            }
             
-            const targetDot = document.querySelector(`.testimonial-slider .testimonial-dot[data-slide="${index}"]`);
+            const targetDot = document.querySelector(`#testimonials .testimonial-dot[data-slide="${index}"]`);
             if (targetDot) targetDot.classList.add('active');
         }
+
+        setInterval(() => {
+            let next = currentTestimonialPelanggan + 1;
+            if(next > totalTestimonialsPelanggan) next = 1;
+            showTestimonialPelanggan(next);
+        }, 5000);
       </script>
-      @endif
     </div>
   </div>
 </section>
