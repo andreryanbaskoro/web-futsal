@@ -1,4 +1,5 @@
 <!-- ==================== TESTIMONIALS SECTION ==================== -->
+@if($ulasanList->count() > 0)
 <section class="section testimonials" id="testimonials">
   <div class="container">
     <div class="section-header">
@@ -7,7 +8,7 @@
       <p style="color: rgba(255,255,255,0.7);">Dengarkan pengalaman pelanggan kami bermain di FUSTAL ACR</p>
     </div>
     <div class="testimonial-slider">
-      @forelse ($ulasanList as $index => $ulasan)
+      @foreach ($ulasanList as $index => $ulasan)
       <div class="testimonial-card" id="testimonial-{{ $index + 1 }}" style="{{ $index > 0 ? 'display: none;' : '' }}">
         <p class="testimonial-quote">
           {{ $ulasan->komentar }}
@@ -31,13 +32,7 @@
           </div>
         </div>
       </div>
-      @empty
-      <div class="testimonial-card" id="testimonial-1" style="text-align: center;">
-        <p class="testimonial-quote" style="text-align: center;">
-          Belum ada ulasan dari pelanggan. Jadilah yang pertama memberikan ulasan setelah bermain!
-        </p>
-      </div>
-      @endforelse
+      @endforeach
 
       @if($ulasanList->count() > 1)
       <div class="testimonial-nav">
@@ -65,3 +60,4 @@
     </div>
   </div>
 </section>
+@endif
