@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pengguna;
+use App\Models\Ulasan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -14,58 +15,20 @@ class RegisterController extends Controller
 {
     public function show()
     {
-        $testimonials = [
-            [
-                'quote' => 'Daftar gratis dan langsung bisa booking! Prosesnya cepat banget.',
-                'name' => 'Andi Pratama',
-                'year' => '2024',
-                'avatar' => 15
-            ],
-            [
-                'quote' => 'Aplikasi booking paling mudah yang pernah saya coba. Recommended!',
-                'name' => 'Budi Santoso',
-                'year' => '2023',
-                'avatar' => 12
-            ],
-            [
-                'quote' => 'Gak perlu ribet telepon-telepon lagi. Tinggal klik, bayar, main!',
-                'name' => 'Rudi Hermawan',
-                'year' => '2024',
-                'avatar' => 33
-            ],
-            [
-                'quote' => 'Sistemnya user-friendly, cocok banget buat yang sering main futsal.',
-                'name' => 'Dimas Wijaya',
-                'year' => '2023',
-                'avatar' => 8
-            ],
-            [
-                'quote' => 'Harga transparan, booking cepat. Mantap pokoknya!',
-                'name' => 'Fajar Nugroho',
-                'year' => '2024',
-                'avatar' => 22
-            ],
-            [
-                'quote' => 'Suka banget! Jadwal lapangan real-time, nggak pernah bentrok.',
-                'name' => 'Eka Saputra',
-                'year' => '2023',
-                'avatar' => 45
-            ],
-            [
-                'quote' => 'Aplikasi ini bikin ngatur jadwal main futsal jadi lebih gampang.',
-                'name' => 'Gilang Ramadhan',
-                'year' => '2024',
-                'avatar' => 67
-            ],
-            [
-                'quote' => 'Pelayanan oke, sistem booking modern. Top deh!',
-                'name' => 'Hendra Gunawan',
-                'year' => '2023',
-                'avatar' => 19
-            ],
-        ];
+        $ulasan = Ulasan::with('pengguna')
+            ->whereNotNull('komentar')
+            ->where('komentar', '!=', '')
+            ->inRandomOrder()
+            ->first();
 
-        $randomTestimonial = $testimonials[array_rand($testimonials)];
+        $randomTestimonial = null;
+        if ($ulasan) {
+            $randomTestimonial = [
+                'quote' => $ulasan->komentar,
+                'name' => $ulasan->pengguna->nama_lengkap ?? 'Pengguna',
+                'year' => date('Y', strtotime($ulasan->pengguna->created_at ?? now())),
+            ];
+        }
 
         return view('auth.register', compact('randomTestimonial'));
     }

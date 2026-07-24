@@ -12,12 +12,13 @@
             <p>Bergabunglah dengan ribuan pemain futsal yang sudah menikmati kemudahan booking online.</p>
 
             <div style="margin-top: var(--space-2xl);">
+                @if($randomTestimonial)
                 <div style="background: rgba(255,255,255,0.1); border-radius: var(--radius-lg); padding: var(--space-lg);">
                     <p style="font-style: italic; margin-bottom: var(--space-md);">
                         "{{ $randomTestimonial['quote'] }}"
                     </p>
                     <div style="display: flex; align-items: center; justify-content: center; gap: var(--space-sm);">
-                        <img src="https://i.pravatar.cc/40?img={{ $randomTestimonial['avatar'] }}"
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode($randomTestimonial['name']) }}&background=random"
                             alt="{{ $randomTestimonial['name'] }}"
                             style="width: 40px; height: 40px; border-radius: 50%;">
                         <div style="text-align: left;">
@@ -28,6 +29,7 @@
                         </div>
                     </div>
                 </div>
+                @endif
             </div>
         </div>
     </div>
