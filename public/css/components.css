@@ -390,11 +390,12 @@
 
 .hero-stats {
     display: flex;
-    gap: var(--space-2xl);
+    gap: var(--space-3xl);
     margin-top: var(--space-3xl);
     padding-top: var(--space-2xl);
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     flex-wrap: wrap;
+    align-items: center;
 }
 
 .stat-item {
@@ -404,14 +405,19 @@
 
 .stat-value {
     font-family: var(--font-primary);
-    font-size: var(--text-3xl);
-    font-weight: 700;
-    color: var(--color-primary);
+    font-size: var(--text-4xl);
+    font-weight: 800;
+    color: var(--color-accent);
+    line-height: 1.2;
+    margin-bottom: 4px;
 }
 
 .stat-label {
     font-size: var(--text-sm);
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.9);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 500;
 }
 
 /* ===== Features Section ===== */
