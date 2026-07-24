@@ -99,72 +99,7 @@ document.addEventListener("DOMContentLoaded", function () {
     window.addEventListener("scroll", checkAnimation);
     checkAnimation(); // Initial check
 
-    // ===== Testimonial Slider =====
-    const testimonials = [
-        {
-            quote: "Lapangan bersih, rumput bagus, dan booking sangat mudah! Gak perlu telepon-telepon, langsung booking dari HP. Recommended banget untuk yang mau main futsal bareng teman!",
-            name: "Ahmad Fadillah",
-            role: "Tim Futsal Garuda FC",
-            avatar: "https://i.pravatar.cc/100?img=11",
-            rating: 5,
-        },
-        {
-            quote: "Sudah 2 tahun langganan di sini. Pelayanannya ramah, lapangannya terawat, dan yang paling penting booking-nya gampang banget. Tinggal pilih, bayar, selesai!",
-            name: "Budi Santoso",
-            role: "Tim Futsal Elang Jaya",
-            avatar: "https://i.pravatar.cc/100?img=12",
-            rating: 5,
-        },
-        {
-            quote: "Fasilitasnya lengkap, ada ruang ganti, kamar mandi bersih, dan parkir luas. Harga juga terjangkau untuk kualitas lapangan sebagus ini. Top!",
-            name: "Reza Pratama",
-            role: "Anggota Komunitas Futsal",
-            avatar: "https://i.pravatar.cc/100?img=13",
-            rating: 5,
-        },
-    ];
-
-    const testimonialDots = document.querySelectorAll(".testimonial-dot");
-    let currentTestimonial = 0;
-
-    function updateTestimonial(index) {
-        const card = document.getElementById("testimonial-1");
-        if (!card) return;
-
-        const t = testimonials[index];
-        const stars = '<i class="fas fa-star"></i>'.repeat(t.rating);
-
-        card.innerHTML = `
-      <p class="testimonial-quote">${t.quote}</p>
-      <div class="testimonial-author">
-        <div class="testimonial-avatar">
-          <img src="${t.avatar}" alt="${t.name}">
-        </div>
-        <div class="testimonial-info">
-          <div class="testimonial-name">${t.name}</div>
-          <div class="testimonial-role">${t.role}</div>
-          <div class="testimonial-rating">${stars}</div>
-        </div>
-      </div>
-    `;
-
-        testimonialDots.forEach((dot, i) => {
-            dot.classList.toggle("active", i === index);
-        });
-    }
-
-    testimonialDots.forEach((dot, index) => {
-        dot.addEventListener("click", () => {
-            currentTestimonial = index;
-            updateTestimonial(index);
-        });
-    });
-
-    // Auto-rotate testimonials
-    setInterval(() => {
-        currentTestimonial = (currentTestimonial + 1) % testimonials.length;
-        updateTestimonial(currentTestimonial);
-    }, 5000);
+    // ===== Testimonial Slider removed - now handled natively in blade templates =====
 
     // ===== Active Nav Link =====
     const sections = document.querySelectorAll("section[id]");

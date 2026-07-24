@@ -148,33 +148,7 @@ const MOCK_DATA = {
         },
     ],
 
-    // Testimonials
-    testimonials: [
-        {
-            id: 1,
-            name: "Ahmad Fadillah",
-            role: "Tim Futsal Garuda FC",
-            avatar: "https://i.pravatar.cc/100?img=11",
-            rating: 5,
-            quote: "Lapangan bersih, rumput bagus, dan booking sangat mudah! Gak perlu telepon-telepon, langsung booking dari HP. Recommended banget untuk yang mau main futsal bareng teman!",
-        },
-        {
-            id: 2,
-            name: "Budi Santoso",
-            role: "Tim Futsal Elang Jaya",
-            avatar: "https://i.pravatar.cc/100?img=12",
-            rating: 5,
-            quote: "Sudah 2 tahun langganan di sini. Pelayanannya ramah, lapangannya terawat, dan yang paling penting booking-nya gampang banget. Tinggal pilih, bayar, selesai!",
-        },
-        {
-            id: 3,
-            name: "Reza Pratama",
-            role: "Anggota Komunitas Futsal",
-            avatar: "https://i.pravatar.cc/100?img=13",
-            rating: 5,
-            quote: "Fasilitasnya lengkap, ada ruang ganti, kamar mandi bersih, dan parkir luas. Harga juga terjangkau untuk kualitas lapangan sebagus ini. Top!",
-        },
-    ],
+    // Testimonials removed - using real database data
 
     // Blog Articles
     articles: [
