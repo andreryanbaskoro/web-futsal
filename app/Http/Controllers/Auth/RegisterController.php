@@ -26,7 +26,8 @@ class RegisterController extends Controller
             $randomTestimonial = [
                 'quote' => $ulasan->komentar,
                 'name' => $ulasan->pengguna->nama_lengkap ?? 'Pengguna',
-                'year' => date('Y', strtotime($ulasan->pengguna->created_at ?? now())),
+                'date_time' => \Carbon\Carbon::parse($ulasan->created_at)->translatedFormat('d F Y, H:i'),
+                'rating' => $ulasan->rating ?? 5,
             ];
         }
 

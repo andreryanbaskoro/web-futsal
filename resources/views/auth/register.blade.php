@@ -24,7 +24,16 @@
                         <div style="text-align: left;">
                             <div style="font-weight: 600;">{{ $randomTestimonial['name'] }}</div>
                             <div style="font-size: var(--text-sm); opacity: 0.8;">
-                                Member sejak {{ $randomTestimonial['year'] }}
+                                {{ $randomTestimonial['date_time'] }}
+                            </div>
+                            <div style="margin-top: 4px;">
+                                @for($i = 1; $i <= 5; $i++)
+                                    @if($i <= $randomTestimonial['rating'])
+                                        <i class="fas fa-star" style="color: #facc15; font-size: 12px;"></i>
+                                    @else
+                                        <i class="fas fa-star" style="color: #e5e7eb; font-size: 12px;"></i>
+                                    @endif
+                                @endfor
                             </div>
                         </div>
                     </div>
